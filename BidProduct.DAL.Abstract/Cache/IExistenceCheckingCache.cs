@@ -1,7 +1,7 @@
 ﻿namespace BidProduct.DAL.Abstract.Cache
 {
-    public interface IExistenceCheckingCache<TInput, TKey>
-        where TInput : class, IHasId
+    public interface IExistenceCheckingCache<TInput, TKey, TId>
+        where TInput : class, IHasId<TId> where TId : struct
     {
         ICacheKeyConverter<TInput, TKey> KeyConverter { get; }
         Task CacheAsync(TInput input);

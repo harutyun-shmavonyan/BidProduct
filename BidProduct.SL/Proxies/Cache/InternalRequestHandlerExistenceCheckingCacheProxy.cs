@@ -5,15 +5,16 @@ using BidProduct.SL.Abstract.CQRS;
 
 namespace BidProduct.SL.Proxies.Cache
 {
-    public class InternalRequestHandlerExistenceCheckingCacheProxy<TRequest, TResponse, TKey, TValue> : IInternalRequestHandler<TRequest, TResponse>
-        where TRequest : class, IInternalRequest<TResponse>, IHasId
+    public class InternalRequestHandlerExistenceCheckingCacheProxy<TRequest, TResponse, TKey, TValue, TId> : IInternalRequestHandler<TRequest, TResponse>
+        where TRequest : class, IInternalRequest<TResponse>, IHasId<TId>
         where TResponse : class, IExistenceResponse, new()
+        where TId : struct
     {
         private readonly IRequestHandler<TRequest, TResponse> _handler;
-        private readonly IExistenceCheckingCache<TRequest, TKey> _existenceCheckingCache;
+        private readonly IExistenceCheckingCache<TRequest, TKey, TId> _existenceCheckingCache;
 
         public InternalRequestHandlerExistenceCheckingCacheProxy(IRequestHandler<TRequest, TResponse> handler,
-            IExistenceCheckingCache<TRequest, TKey> existenceCheckingCache)
+            IExistenceCheckingCache<TRequest, TKey, TId> existenceCheckingCache)
         {
             _handler = handler;
             _existenceCheckingCache = existenceCheckingCache;

@@ -1,25 +1,26 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BidProduct.DAL.Abstract;
+using Microsoft.EntityFrameworkCore;
 using BidProduct.DAL.Abstract.Filtering;
 using BidProduct.DAL.Abstract.Repositories;
 using BidProduct.DAL.Models;
 
 namespace BidProduct.DAL.DefaultImplementations
 {
-    public interface IQueryableRepositoryDefault<TEntity> : IQueryableRepository<TEntity>,
-        IEfRepositoryDefault<TEntity> where TEntity : Entity
+    public interface IQueryableRepositoryDefault<TEntity, TId> : IQueryableRepository<TEntity, TId>,
+        IEfRepositoryDefault<TEntity> where TEntity : class, IHasId<TId> where TId : struct
     {
-        async Task<TEntity?> IQueryableRepository<TEntity>.GetByIdAsync(long id)
+        async Task<TEntity?> IQueryableRepository<TEntity, TId>.GetByIdAsync(TId id)
         {
-            var entity = await DbSet.SingleOrDefaultAsync(e => e.Id == id);
+            var entity = await DbSet.SingleOrDefaultAsync(e => e.Equals(id));
             if (entity == null)
-                return null;
+                return default;
 
             Context.Entry(entity).State = EntityState.Detached;
             return entity;
         }
 
-        async Task<ICollection<TEntity>?> IQueryableRepository<TEntity>.GetByFilterAsync(
-            FilterBase<TEntity>? filter)
+        async Task<ICollection<TEntity>?> IQueryableRepository<TEntity, TId>.GetByFilterAsync(
+            FilterBase<TEntity, TId>? filter)
         {
             if (filter == null)
                 return await DbSet.AsNoTracking().ToListAsync();
@@ -27,8 +28,8 @@ namespace BidProduct.DAL.DefaultImplementations
             return await query.AsNoTracking().ToListAsync();
         }
 
-        async Task<TEntity> IQueryableRepository<TEntity>.GetSingleByFilterAsync(
-            FilterBase<TEntity>? filter)
+        async Task<TEntity> IQueryableRepository<TEntity, TId>.GetSingleByFilterAsync(
+            FilterBase<TEntity, TId>? filter)
         {
             if (filter == null)
                 return await DbSet.AsNoTracking().SingleAsync();
@@ -37,8 +38,8 @@ namespace BidProduct.DAL.DefaultImplementations
             return await query.AsNoTracking().SingleAsync();
         }
 
-        async Task<TEntity?> IQueryableRepository<TEntity>.GetSingleOrDefaultByFilterAsync(
-            FilterBase<TEntity>? filter)
+        async Task<TEntity?> IQueryableRepository<TEntity, TId>.GetSingleOrDefaultByFilterAsync(
+            FilterBase<TEntity, TId>? filter)
         {
             if (filter == null)
                 return await DbSet.AsNoTracking().SingleOrDefaultAsync();
@@ -47,7 +48,7 @@ namespace BidProduct.DAL.DefaultImplementations
             return await query.AsNoTracking().SingleOrDefaultAsync();
         }
 
-        async Task<long> IQueryableRepository<TEntity>.GetCountByFilterAsync(FilterBase<TEntity>? filter)
+        async Task<long> IQueryableRepository<TEntity, TId>.GetCountByFilterAsync(FilterBase<TEntity, TId>? filter)
         {
             if (filter == null)
                 return await DbSet.AsNoTracking().CountAsync();

@@ -4,10 +4,10 @@ using BidProduct.DAL.Models;
 
 namespace BidProduct.DAL.DefaultImplementations
 {
-    public interface ICreatableRepositoryDefault<TEntity> : ICreatableRepository<TEntity>,
-        IEfRepositoryDefault<TEntity> where TEntity : Entity
+    public interface ICreatableRepositoryDefault<TEntity, TId> : ICreatableRepository<TEntity, TId>,
+        IEfRepositoryDefault<TEntity> where TEntity : class, IHasId<TId> where TId : struct
     {
-        TEntity ICreatableRepository<TEntity>.Add(TEntity entity)
+        TEntity ICreatableRepository<TEntity, TId>.Add(TEntity entity)
         {
             var utcNow = DateTime.UtcNow;
 
@@ -18,7 +18,7 @@ namespace BidProduct.DAL.DefaultImplementations
             return entity;
         }
 
-        ICollection<TEntity> ICreatableRepository<TEntity>.BulkAdd(ICollection<TEntity> entities)
+        ICollection<TEntity> ICreatableRepository<TEntity, TId>.BulkAdd(ICollection<TEntity> entities)
         {
             var utcNow = DateTime.UtcNow;
 
@@ -29,7 +29,7 @@ namespace BidProduct.DAL.DefaultImplementations
                     hasCreated.Created = utcNow;
                 }
 
-                entity.Id = 0;
+                entity.Id = default;
             }
             DbSet.AddRange(entities);
             return entities;

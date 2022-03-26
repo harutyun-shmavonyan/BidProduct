@@ -2,18 +2,20 @@
 
 namespace BidProduct.DAL.Utils
 {
-    public class IdEqualityComparer : IEqualityComparer<IHasId>
+    public class IdEqualityComparer<TId> : IEqualityComparer<IHasId<TId>> where TId : struct
     {
-        public bool Equals(IHasId? x, IHasId? y)
+        public bool Equals(IHasId<TId>? x, IHasId<TId>? y)
         {
             if (ReferenceEquals(x, y)) return true;
+
             if (x is null) return false;
             if (y is null) return false;
+
             if (x.GetType() != y.GetType()) return false;
-            return x.Id == y.Id;
+            return x.Id.Equals(y.Id);
         }
 
-        public int GetHashCode(IHasId obj)
+        public int GetHashCode(IHasId<TId> obj)
         {
             return obj.Id.GetHashCode();
         }

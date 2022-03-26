@@ -1,11 +1,8 @@
 ﻿namespace BidProduct.Common.Exceptions
 {
-    public class ResourceNotFoundException<T> : BidProductException
+    public class ResourceNotFoundException<T, TId> : BidProductException
     {
-        public ResourceNotFoundException(long id) : base($"There is no {typeof(T).Name} with id {id}", ExceptionType.NotFound)
-        {
-        }
-        public ResourceNotFoundException(string id) : base($"There is no {typeof(T).Name} with id {id}", ExceptionType.NotFound)
+        public ResourceNotFoundException(TId id) : base($"There is no {typeof(T).Name} with id {id}", ExceptionType.NotFound)
         {
         }
     }

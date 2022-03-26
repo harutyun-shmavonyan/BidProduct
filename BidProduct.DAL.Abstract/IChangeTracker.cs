@@ -2,7 +2,7 @@
 
 namespace BidProduct.DAL.Abstract
 {
-    public interface IChangeTracker<TEntity> where TEntity : IHasId
+    public interface IChangeTracker<TEntity, TId> where TEntity : IHasId<TId> where TId : struct
     {
         TEntity Entity { get; }
         TrackMode TrackedMode { get; }

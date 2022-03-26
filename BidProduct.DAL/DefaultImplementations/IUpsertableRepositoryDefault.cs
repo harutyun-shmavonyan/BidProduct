@@ -6,13 +6,13 @@ using BidProduct.DAL.Models;
 
 namespace BidProduct.DAL.DefaultImplementations
 {
-    public interface IUpsertableRepositoryDefault<TEntity> : IUpsertableRepository<TEntity>,
-        IEfRepositoryDefault<TEntity> where TEntity : Entity
+    public interface IUpsertableRepositoryDefault<TEntity, TId> : IUpsertableRepository<TEntity, TId>,
+        IEfRepositoryDefault<TEntity> where TEntity : class, IHasId<TId> where TId : struct
     {
-        ICreatableRepository<TEntity> CreatableRepository { get; }
-        IUpdateableRepository<TEntity> UpdateableRepository { get; }
+        ICreatableRepository<TEntity, TId> CreatableRepository { get; }
+        IUpdateableRepository<TEntity, TId> UpdateableRepository { get; }
 
-        async Task<UpsertResult> IUpsertableRepository<TEntity>.UpsertAsync(IChangeTracker<TEntity> changeTracker,
+        async Task<UpsertResult> IUpsertableRepository<TEntity, TId>.UpsertAsync(IChangeTracker<TEntity, TId> changeTracker,
             Expression<Func<TEntity, bool>> keyExpression,
             Predicate<TEntity>? updatePredicate = null)
         {
@@ -33,10 +33,10 @@ namespace BidProduct.DAL.DefaultImplementations
             return UpsertResult.UnModified;
         }
 
-        Task<UpsertResult> IUpsertableRepository<TEntity>.UpsertAsync(TEntity entity, Expression<Func<TEntity, bool>> keyExpression,
+        Task<UpsertResult> IUpsertableRepository<TEntity, TId>.UpsertAsync(TEntity entity, Expression<Func<TEntity, bool>> keyExpression,
             Predicate<TEntity>? updatePredicate)
         {
-            var changeTracker = new ChangeTracker<TEntity>(entity, TrackMode.Exclude);
+            var changeTracker = new ChangeTracker<TEntity, TId>(entity, TrackMode.Exclude);
             return UpsertAsync(changeTracker, keyExpression);
         }
     }

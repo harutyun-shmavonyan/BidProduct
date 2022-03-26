@@ -3,10 +3,10 @@ using BidProduct.DAL.Abstract.FilterExecutors;
 
 namespace BidProduct.DAL.Abstract.Filtering
 {
-    public class FilterBase<TEntity> where TEntity : class, IHasId
+    public class FilterBase<TEntity, TId> where TEntity : class, IHasId<TId> where TId : struct
     {
-        public long? Id { get; set; }
-        public IList<long>? IdsList { get; set; }
+        public TId? Id { get; set; }
+        public IList<TId>? IdsList { get; set; }
 
         public int? Take { get; set; }
         public int? Skip { get; set; }
@@ -48,7 +48,7 @@ namespace BidProduct.DAL.Abstract.Filtering
                 query = query.Skip(Skip.Value);
 
             if (Id != null)
-                query = query.Where(entity => entity.Id == Id);
+                query = query.Where(entity => entity.Equals(Id));
 
             if (IdsList != null)
                 query = query.Where(entity => IdsList.Contains(entity.Id));

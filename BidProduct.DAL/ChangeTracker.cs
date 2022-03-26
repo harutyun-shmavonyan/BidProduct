@@ -4,7 +4,7 @@ using BidProduct.DAL.Models;
 
 namespace BidProduct.DAL
 {
-    public class ChangeTracker<TEntity> : IChangeTracker<TEntity> where TEntity : Entity
+    public class ChangeTracker<TEntity, TId> : IChangeTracker<TEntity, TId> where TEntity : IHasId<TId> where TId : struct
     {
         public TEntity Entity { get; }
         public TrackMode TrackedMode { get; }

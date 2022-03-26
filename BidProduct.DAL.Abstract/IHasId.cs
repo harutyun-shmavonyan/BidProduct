@@ -1,7 +1,7 @@
 ﻿namespace BidProduct.DAL.Abstract
 {
-    public interface IHasId
+    public interface IHasId<TId> where TId : struct
     {
-        long Id { get; set; }
+        TId Id { get; set; }
     }
 }

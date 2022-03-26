@@ -2,8 +2,8 @@
 
 namespace BidProduct.DAL.Models
 {
-    public record Entity : IHasId
+    public record Entity<TId> : IHasId<TId> where TId : struct
     {
-        public long Id { get; set; }
+        public TId Id { get; set; }
     }
 }

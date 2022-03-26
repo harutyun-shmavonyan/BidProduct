@@ -6,13 +6,14 @@ using BidProduct.DAL.Models;
 
 namespace BidProduct.DAL.DefaultImplementations
 {
-    public interface IUpdateableRepositoryDefault<TEntity> : IUpdateableRepository<TEntity>,
-        IEfRepositoryDefault<TEntity> where TEntity : Entity
+    public interface IUpdateableRepositoryDefault<TEntity, TId> : IUpdateableRepository<TEntity, TId>,
+        IEfRepositoryDefault<TEntity> where TEntity : class, IHasId<TId> 
+        where TId : struct
     {
-        TEntity IUpdateableRepository<TEntity>.Update(IChangeTracker<TEntity> changeTracker)
+        TEntity IUpdateableRepository<TEntity, TId>.Update(IChangeTracker<TEntity, TId> changeTracker)
         {
             var entity = changeTracker.Entity;
-            var isAttached = Context.TryAttach(entity);
+            var isAttached = Context.TryAttach<TEntity, TId>(entity);
 
             if (changeTracker.Entity is IHasModified hasModified)
             {
@@ -22,7 +23,7 @@ namespace BidProduct.DAL.DefaultImplementations
 
             if (!isAttached)
             {
-                entity = Context.Set<TEntity>().Local.Single(e => e.Id == entity.Id || e == entity);
+                entity = Context.Set<TEntity>().Local.Single(e => e.Id.Equals(entity.Id) || e == entity);
 
                 if (changeTracker.TrackedMode == TrackMode.Include)
                 {
@@ -55,9 +56,9 @@ namespace BidProduct.DAL.DefaultImplementations
             return entity;
         }
 
-        TEntity IUpdateableRepository<TEntity>.Update(TEntity newEntity)
+        TEntity IUpdateableRepository<TEntity, TId>.Update(TEntity newEntity)
         {
-            var changeTracker = new ChangeTracker<TEntity>(newEntity, TrackMode.Exclude);
+            var changeTracker = new ChangeTracker<TEntity, TId>(newEntity, TrackMode.Exclude);
             return Update(changeTracker);
         }
     }

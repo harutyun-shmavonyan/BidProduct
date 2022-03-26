@@ -2,12 +2,12 @@
 
 namespace BidProduct.DAL.Abstract.Repositories
 {
-    public interface IQueryableRepository<TEntity> where TEntity : class, IHasId
+    public interface IQueryableRepository<TEntity, TId> where TEntity : class, IHasId<TId> where TId : struct
     {
-        public Task<TEntity?> GetByIdAsync(long id);
-        public Task<long> GetCountByFilterAsync(FilterBase<TEntity>? filter = null);
-        public Task<ICollection<TEntity>?> GetByFilterAsync(FilterBase<TEntity>? filter = null);
-        public Task<TEntity> GetSingleByFilterAsync(FilterBase<TEntity>? filter = null);
-        public Task<TEntity?> GetSingleOrDefaultByFilterAsync(FilterBase<TEntity>? filter = null);
+        public Task<TEntity?> GetByIdAsync(TId id);
+        public Task<long> GetCountByFilterAsync(FilterBase<TEntity, TId>? filter = null);
+        public Task<ICollection<TEntity>?> GetByFilterAsync(FilterBase<TEntity, TId>? filter = null);
+        public Task<TEntity> GetSingleByFilterAsync(FilterBase<TEntity, TId>? filter = null);
+        public Task<TEntity?> GetSingleOrDefaultByFilterAsync(FilterBase<TEntity, TId>? filter = null);
     }
 }

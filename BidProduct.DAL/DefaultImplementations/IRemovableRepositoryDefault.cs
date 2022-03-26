@@ -1,28 +1,29 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BidProduct.DAL.Abstract;
+using Microsoft.EntityFrameworkCore;
 using BidProduct.DAL.Abstract.Repositories;
 using BidProduct.DAL.Extensions;
 using BidProduct.DAL.Models;
 
 namespace BidProduct.DAL.DefaultImplementations
 {
-    public interface IRemovableRepositoryDefault<TEntity> : IRemovableRepository<TEntity>,
-        IEfRepositoryDefault<TEntity> where TEntity : Entity, new()
+    public interface IRemovableRepositoryDefault<TEntity, TId> : IRemovableRepository<TEntity, TId>,
+        IEfRepositoryDefault<TEntity> where TEntity : class, IHasId<TId>, new() where TId : struct
     {
-        TEntity IRemovableRepository<TEntity>.Remove(TEntity entity)
+        TEntity IRemovableRepository<TEntity, TId>.Remove(TEntity entity)
         {
-            Context.TryAttach(entity);
+            Context.TryAttach<TEntity, TId>(entity);
             Context.Entry(entity).State = EntityState.Deleted;
             return entity;
         }
 
-        void IRemovableRepository<TEntity>.RemoveById(long id)
+        void IRemovableRepository<TEntity, TId>.RemoveById(TId id)
         {
-            var entity = Context.Set<TEntity>().Local.SingleOrDefault(e => e.Id == id) ?? new TEntity { Id = id };
+            var entity = Context.Set<TEntity>().Local.SingleOrDefault(e => e.Id.Equals(id)) ?? new TEntity { Id = id };
 
             Context.Entry(entity).State = EntityState.Deleted;
         }
 
-        void IRemovableRepository<TEntity>.BulkRemoveByIds(ICollection<long> ids)
+        void IRemovableRepository<TEntity, TId>.BulkRemoveByIds(ICollection<TId> ids)
         {
             foreach (var id in ids)
             {
@@ -30,7 +31,7 @@ namespace BidProduct.DAL.DefaultImplementations
             }
         }
 
-        ICollection<TEntity> IRemovableRepository<TEntity>.BulkRemove(ICollection<TEntity> entities) =>
+        ICollection<TEntity> IRemovableRepository<TEntity, TId>.BulkRemove(ICollection<TEntity> entities) =>
             entities.Select(Remove).ToList();
     }
 }
