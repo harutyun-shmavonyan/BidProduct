@@ -1,6 +1,7 @@
 using BidProduct.API;
 using BidProduct.API.ExceptionHandlers;
 using BidProduct.API.Middlewares;
+using BidProduct.Common.Abstract;
 using BidProduct.DAL.CacheConverters;
 using BidProduct.DAL.Caches;
 using BidProduct.DAL.DB;
@@ -63,6 +64,7 @@ app.UseMiddleware<ExceptionHandlerMiddleware>();
 using (var scope = builder.Services.BuildServiceProvider().CreateScope())
 {
     scope.ServiceProvider.GetRequiredService<BidProductDbContext>().Database.Migrate();
+    scope.ServiceProvider.GetRequiredService<AutoMapper.IMapper>().ConfigurationProvider.AssertConfigurationIsValid();
 }
 
 app.UseHttpsRedirection();
