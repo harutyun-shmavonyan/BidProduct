@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="CQRS\Notifications\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BidPorduct.SL.Abstract\BidProduct.SL.Abstract.csproj" />
+    <ProjectReference Include="..\BidProduct.DAL.Models\BidProduct.DAL.Models.csproj" />
+  </ItemGroup>
+
+</Project>
