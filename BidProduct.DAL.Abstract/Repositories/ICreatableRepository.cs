@@ -1,4 +1,6 @@
-﻿namespace BidProduct.DAL.Abstract.Repositories
+﻿using BidProduct.Common.Abstract;
+
+namespace BidProduct.DAL.Abstract.Repositories
 {
     public interface ICreatableRepository<TEntity, TId> where TEntity : IHasId<TId> where TId : struct
     {
