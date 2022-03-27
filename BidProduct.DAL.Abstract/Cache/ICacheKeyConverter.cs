@@ -2,6 +2,6 @@
 {
     public interface ICacheKeyConverter<TInput, TKey>
     {
-        public TKey Convert(TInput input);
+        public TKey ToKey(TInput input);
     }
 }

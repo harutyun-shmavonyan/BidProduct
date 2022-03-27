@@ -2,6 +2,6 @@
 {
     public interface IHasModified
     {
-        DateTime Modified { get; set; }
+        DateTimeOffset Modified { get; set; }
     }
 }

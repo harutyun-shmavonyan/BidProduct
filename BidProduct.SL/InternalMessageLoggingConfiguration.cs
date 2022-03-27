@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Primitives;
-
-namespace BidProduct.SL
+﻿namespace BidProduct.SL
 {
     public class InternalMessageLoggingConfiguration
     {
@@ -10,6 +8,6 @@ namespace BidProduct.SL
         public bool ScopeIdNeeded { get; init; }
         public bool DurationNeeded { get; init; }
         public bool ClearDurationNeeded { get; init; }
-        public Dictionary<string, int> MaxDurations { get; init; } = (Dictionary<string, int>)Enumerable.Empty<KeyValuePair<string, int>>();
+        public Dictionary<string, int>? MaxDurations { get; set; } = null;
     }
 }

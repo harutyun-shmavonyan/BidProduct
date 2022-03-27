@@ -9,15 +9,17 @@ using BidProduct.DAL.Abstract.FilterExecutors;
 using BidProduct.DAL.DB;
 using BidProduct.DAL.FilterExecutors;
 using BidProduct.SL.Mapping;
-using BidProduct.SL.Models.CQRS.Queries;
 using BidProduct.SL.Proxies;
 using BidProduct.SL.Proxies.Cache;
 using BidProduct.SL.Utils;
 using Mapper = BidProduct.SL.Mapping.Mapper;
 using BidProduct.DAL.Abstract.Cache;
+using BidProduct.DAL.CacheConverters;
+using BidProduct.DAL.Repositories;
 using BidProduct.SL.Abstract;
 using BidProduct.SL.Abstract.CQRS;
 using BidProduct.SL.Abstract.Validation;
+using BidProduct.SL.Models.CQRS.Queries;
 using BidProduct.SL.Models.CQRS.Responses;
 
 namespace BidProduct.SL.Extensions
@@ -44,9 +46,8 @@ namespace BidProduct.SL.Extensions
                 mc.AddProfiles(Profiles);
             }).CreateMapper());
 
-            services.ForRequest<GetProductQuery, GetProductQueryResponse>().AddCaching<GetProductQuery, GetProductQueryResponse>(services).WithKey<string>();
-
-            services.Configure<InternalMessageLoggingConfiguration>(_ => configuration.GetSection("InternalMessageLoggingConfiguration"));
+            services.Configure<InternalMessageLoggingConfiguration>(
+                configuration.GetSection("InternalMessageLoggingConfiguration"));
         }
 
         public static void AddCache(this IServiceCollection services)
@@ -61,6 +62,8 @@ namespace BidProduct.SL.Extensions
 
             services.AddScoped<IIncludeFilterExecutor, IncludeFilterExecutor>();
             services.AddScoped<IProjectionFilterExecutor, ProjectionFilterExecutor>();
+
+            services.AddScoped<IProductRepository, ProductRepository>();
         }
 
         public static void AddEfCore(this IServiceCollection services, string connectionString)
@@ -81,10 +84,13 @@ namespace BidProduct.SL.Extensions
 
         private static void AddCacheDecorators(IServiceCollection services)
         {
+            services.Decorate<IRequestHandler<GetProductQuery, GetProductQueryResponse>,
+                InternalRequestHandlerReadThroughCacheProxy<GetProductQuery, GetProductQueryResponse, long, GetProductQueryResponse>>();
         }
 
         private static void AddCacheConverters(IServiceCollection services)
         {
+            services.AddSingleton<ProductCacheConverter>();
         }
 
         public static RequestPipelineBuilder<TRequest> ForRequest<TRequest, TResponse>(this IServiceCollection services) where TResponse : class where TRequest : IInternalRequest<TResponse>
@@ -102,14 +108,15 @@ namespace BidProduct.SL.Extensions
             Services = services;
         }
 
-        public ValidationLayerBuilder<TRequest> AddValidation(IServiceCollection services)
+        public ValidationLayerBuilder<TRequest> AddValidation()
         {
-            return new ValidationLayerBuilder<TRequest>(services);
+            return new ValidationLayerBuilder<TRequest>(Services);
         }
 
-        public CacheKeyBuilder<TRequest1, TResponse> AddCaching<TRequest1, TResponse>(IServiceCollection services) where TResponse : class where TRequest1 : IInternalRequest<TResponse>
+        public CacheKeyBuilder<TInternalRequest, TResponse> AddCaching<TInternalRequest, TResponse>() 
+            where TResponse : class where TInternalRequest : IInternalRequest<TResponse>
         {
-            return new CacheKeyBuilder<TRequest1, TResponse>(services);
+            return new CacheKeyBuilder<TInternalRequest, TResponse>(Services);
         }
     }
 
@@ -153,7 +160,7 @@ namespace BidProduct.SL.Extensions
             _services = services;
         }
 
-        public CacheValueConverterBuilder<TRequest, TResponse, TKey, TValue> WithValueConverter<TValue>()
+        public CacheValueConverterBuilder<TRequest, TResponse, TKey, TValue> WithValue<TValue>()
         {
             return new CacheValueConverterBuilder<TRequest, TResponse, TKey, TValue>(_services);
         }
@@ -184,20 +191,18 @@ namespace BidProduct.SL.Extensions
             _services = services;
         }
 
-        public CacheBuilder<TRequest, TResponse, TKey, TValue> Build<TCache>(CacheLifetime lifetime) where TCache : class, IExpirableKeyValueCache<TRequest, TResponse, TKey, TValue>
+        public CacheBuilder<TRequest, TResponse, TKey, TValue> Build<TCache>(CacheLifetime lifetime) where TCache : class, IKeyValueCache<TRequest, TResponse, TKey, TValue>
         {
-            _services.Decorate<IRequestHandler<TRequest, TResponse>, InternalRequestHandlerReadThroughCacheProxy<TRequest, TResponse, TKey, TResponse>>();
-
             switch (lifetime)
             {
                 case CacheLifetime.Singleton:
-                    _services.AddSingleton<IExpirableKeyValueCache<TRequest, TResponse, TKey, TValue>, TCache>();
+                    _services.AddSingleton<IKeyValueCache<TRequest, TResponse, TKey, TValue>, TCache>();
                     break;
                 case CacheLifetime.Scoped:
-                    _services.AddScoped<IExpirableKeyValueCache<TRequest, TResponse, TKey, TValue>, TCache>();
+                    _services.AddScoped<IKeyValueCache<TRequest, TResponse, TKey, TValue>, TCache>();
                     break;
                 case CacheLifetime.Transient:
-                    _services.AddTransient<IExpirableKeyValueCache<TRequest, TResponse, TKey, TValue>, TCache>();
+                    _services.AddTransient<IKeyValueCache<TRequest, TResponse, TKey, TValue>, TCache>();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(lifetime), lifetime, null);

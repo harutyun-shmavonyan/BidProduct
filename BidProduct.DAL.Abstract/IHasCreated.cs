@@ -2,6 +2,6 @@
 {
     public interface IHasCreated
     {
-        DateTime Created { get; set; }
+        DateTimeOffset Created { get; set; }
     }
 }

@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BidProduct.Common\BidProduct.Common.csproj" />
     <ProjectReference Include="..\BidProduct.DAL.Abstract\BidProduct.DAL.Abstract.csproj" />
   </ItemGroup>
 

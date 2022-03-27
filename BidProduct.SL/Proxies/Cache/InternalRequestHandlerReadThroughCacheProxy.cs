@@ -8,18 +8,18 @@ namespace BidProduct.SL.Proxies.Cache
         where TRequest : IInternalRequest<TResponse> where TResponse : class
     {
         private readonly IRequestHandler<TRequest, TResponse> _handler;
-        private readonly IExpirableKeyValueCache<TRequest, TResponse, TKey, TValue> _expirableKeyValueCache;
+        private readonly IKeyValueCache<TRequest, TResponse, TKey, TValue> _keyValueCache;
 
         public InternalRequestHandlerReadThroughCacheProxy(IRequestHandler<TRequest, TResponse> handler,
-            IExpirableKeyValueCache<TRequest, TResponse, TKey, TValue> keyValueCache)
+            IKeyValueCache<TRequest, TResponse, TKey, TValue> keyValueCache)
         {
             _handler = handler;
-            _expirableKeyValueCache = keyValueCache;
+            _keyValueCache = keyValueCache;
         }
 
         public async Task<TResponse> HandleAsync(TRequest request, CancellationToken ct)
         {
-            var cacheResult = await _expirableKeyValueCache.GetAsync(request);
+            var cacheResult = await _keyValueCache.GetAsync(request);
             if (cacheResult != null)
             {
                 return cacheResult;
@@ -27,11 +27,18 @@ namespace BidProduct.SL.Proxies.Cache
 
             var response = await _handler.Handle(request, ct);
 
-            // ReSharper disable once UnusedVariable
-            var cacheMissResolvingTask = _expirableKeyValueCache.DefaultExpirationMilliseconds == null ?
-                _expirableKeyValueCache.CacheAsync(request, response) :
-                _expirableKeyValueCache.CacheAsync(request, response, _expirableKeyValueCache.DefaultExpirationMilliseconds.Value);
-
+            if (_keyValueCache is IExpirableKeyValueCache<TRequest, TResponse, TKey, TValue> expirableKeyValueCache)
+            {
+                // ReSharper disable once UnusedVariable
+                var cacheMissResolvingTask = expirableKeyValueCache.DefaultExpirationMilliseconds == null ?
+                    expirableKeyValueCache.CacheAsync(request, response) :
+                    expirableKeyValueCache.CacheAsync(request, response, expirableKeyValueCache.DefaultExpirationMilliseconds.Value);
+            }
+            else
+            {
+                _keyValueCache.CacheAsync(request, response);
+            }
+            
             return response;
         }
     }
