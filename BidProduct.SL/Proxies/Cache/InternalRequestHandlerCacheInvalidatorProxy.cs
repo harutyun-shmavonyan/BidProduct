@@ -8,15 +8,15 @@ namespace BidProduct.SL.Proxies.Cache
         where TCommand : IInternalRequest<TCommandResponse>
     {
         private readonly IRequestHandler<TCommand, TCommandResponse> _handler;
-        private readonly IExpirableKeyValueCache<TRequest, TResponse, TKey, TValue> _expirableKeyValueCache;
+        private readonly IKeyValueCache<TRequest, TResponse, TKey, TValue> _keyValueCache;
         private readonly ICacheCommandToRequestConverter<TCommand, TRequest> _cacheCommandToRequestConverter;
 
         public InternalRequestHandlerCacheInvalidatorProxy(IRequestHandler<TCommand, TCommandResponse> handler, 
-            IExpirableKeyValueCache<TRequest, TResponse, TKey, TValue> expirableKeyValueCache, 
+            IKeyValueCache<TRequest, TResponse, TKey, TValue> keyValueCache, 
             ICacheCommandToRequestConverter<TCommand, TRequest> cacheCommandToRequestConverter)
         {
             _handler = handler;
-            _expirableKeyValueCache = expirableKeyValueCache;
+            _keyValueCache = keyValueCache;
             _cacheCommandToRequestConverter = cacheCommandToRequestConverter;
         }
 
@@ -24,7 +24,7 @@ namespace BidProduct.SL.Proxies.Cache
         {
             var request = _cacheCommandToRequestConverter.Convert(command);
 
-            await _expirableKeyValueCache.InvalidateWithDelayedSupportAsync(request);
+            await _keyValueCache.InvalidateWithDelayedSupportAsync(request);
             return await _handler.Handle(command, ct);
         }
     }

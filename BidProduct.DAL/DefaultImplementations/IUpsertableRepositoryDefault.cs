@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using BidProduct.DAL.Abstract;
 using BidProduct.DAL.Abstract.Repositories;
-using BidProduct.DAL.Models;
 
 namespace BidProduct.DAL.DefaultImplementations
 {

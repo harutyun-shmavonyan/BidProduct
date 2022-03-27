@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="DB\EntityConfigurations\" />
-    <Folder Include="Repositories\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,6 +29,7 @@
     <ProjectReference Include="..\BidProduct.Common\BidProduct.Common.csproj" />
     <ProjectReference Include="..\BidProduct.DAL.Abstract\BidProduct.DAL.Abstract.csproj" />
     <ProjectReference Include="..\BidProduct.DAL.Models\BidProduct.DAL.Models.csproj" />
+    <ProjectReference Include="..\BidProduct.SL.Models\BidProduct.SL.Models.csproj" />
   </ItemGroup>
 
 </Project>

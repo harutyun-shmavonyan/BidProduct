@@ -2,8 +2,8 @@
 
 namespace BidProduct.DAL.Models;
 
-public record Product : Entity<long>, IHasCreated, IHasModified
+public record Product : Entity<long>, IHasCreated
 {
-    public DateTime Created { get; set; }
-    public DateTime Modified { get; set; }
+    public string Name { get; set; }
+    public DateTimeOffset Created { get; set; }
 }

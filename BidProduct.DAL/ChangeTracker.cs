@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
 using BidProduct.DAL.Abstract;
-using BidProduct.DAL.Models;
 
 namespace BidProduct.DAL
 {

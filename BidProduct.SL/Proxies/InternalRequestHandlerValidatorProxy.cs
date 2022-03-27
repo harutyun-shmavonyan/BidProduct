@@ -36,7 +36,7 @@ namespace BidProduct.SL.Proxies
             if (propertyErrorMessages.Any())
             {
                 var errorMessage = string.Join(Environment.NewLine, propertyErrorMessages);
-                throw new BidProductException(errorMessage, ExceptionType.InvalidOperation);
+                throw new BidProductException(errorMessage, ExceptionType.ValidationFailed);
             }
 
             return await _handler.Handle(request, ct);

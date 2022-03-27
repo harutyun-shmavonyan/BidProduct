@@ -1,17 +1,28 @@
-﻿using BidProduct.DAL.Abstract;
+﻿using BidProduct.Common.Exceptions;
+using BidProduct.DAL.Abstract;
 using Microsoft.EntityFrameworkCore;
 using BidProduct.DAL.Abstract.Filtering;
 using BidProduct.DAL.Abstract.Repositories;
-using BidProduct.DAL.Models;
 
 namespace BidProduct.DAL.DefaultImplementations
 {
     public interface IQueryableRepositoryDefault<TEntity, TId> : IQueryableRepository<TEntity, TId>,
         IEfRepositoryDefault<TEntity> where TEntity : class, IHasId<TId> where TId : struct
     {
-        async Task<TEntity?> IQueryableRepository<TEntity, TId>.GetByIdAsync(TId id)
+        async Task<TEntity> IQueryableRepository<TEntity, TId>.GetByIdAsync(TId id)
         {
-            var entity = await DbSet.SingleOrDefaultAsync(e => e.Equals(id));
+            var entity = await TryGetByIdAsync(id);
+
+            if (entity == null)
+                throw new ResourceNotFoundException<TEntity, TId>(id);
+
+            Context.Entry(entity).State = EntityState.Detached;
+            return entity;
+        }
+
+        async Task<TEntity?> IQueryableRepository<TEntity, TId>.TryGetByIdAsync(TId id)
+        {
+            var entity = await DbSet.SingleOrDefaultAsync(e => e.Id.Equals(id));
             if (entity == null)
                 return default;
 
