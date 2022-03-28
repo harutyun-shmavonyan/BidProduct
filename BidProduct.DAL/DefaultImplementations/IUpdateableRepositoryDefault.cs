@@ -16,7 +16,7 @@ namespace BidProduct.DAL.DefaultImplementations
 
             if (changeTracker.Entity is IHasModified hasModified)
             {
-                hasModified.Modified = DateTime.UtcNow;
+                hasModified.Modified = DateTimeService.UtcNow;
                 changeTracker.Register(hm => ((IHasModified)hm).Modified);
             }
 

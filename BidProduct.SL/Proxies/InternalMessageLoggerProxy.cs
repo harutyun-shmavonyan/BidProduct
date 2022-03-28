@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
+using BidProduct.Common.Abstract;
 using BidProduct.SL.Abstract;
 using BidProduct.SL.Abstract.CQRS;
 using MediatR;
@@ -23,16 +24,20 @@ namespace BidProduct.SL.Proxies
         private readonly ILogger _logger;
         private readonly InternalMessageLoggingConfiguration _configuration;
         private readonly IScopeIdProvider _scopeIdProvider;
+        private readonly IDateTimeService _dateTimeService;
 
-        public InternalMessageLoggerProxy(IRequestHandler<TRequest, TResponse> handler,
+        public InternalMessageLoggerProxy(
+            IRequestHandler<TRequest, TResponse> handler,
             ILogger logger,
             IOptions<InternalMessageLoggingConfiguration> options,
-            IScopeIdProvider scopeIdProvider)
+            IScopeIdProvider scopeIdProvider,
+            IDateTimeService dateTimeService)
         {
             _handler = handler;
             _logger = logger;
             _configuration = options.Value;
             _scopeIdProvider = scopeIdProvider;
+            _dateTimeService = dateTimeService;
         }
 
         public async Task<TResponse> HandleAsync(TRequest request, CancellationToken ct)
@@ -60,7 +65,7 @@ namespace BidProduct.SL.Proxies
 
             _logger.Log($"{prefix}Request type: {typeof(TRequest).GetFullName()}");
             if (_configuration.ScopeIdNeeded) _logger.Log($"{prefix}Scope Id: {_scopeIdProvider.ScopeGuid}");
-            if (_configuration.RequestStartDateNeeded) _logger.Log($"{prefix}Request started: {DateTime.UtcNow}");
+            if (_configuration.RequestStartDateNeeded) _logger.Log($"{prefix}Request started: {_dateTimeService.UtcNow}");
 
             var serializerSettings = new JsonSerializerSettings
             {
@@ -75,9 +80,9 @@ namespace BidProduct.SL.Proxies
                 _logger.Log($"{prefix}Request body: {requestBody}");
             }
 
-            var requestStartDate = DateTime.UtcNow;
+            var requestStartDate = _dateTimeService.UtcNow;
             var response = await _handler.Handle(request, ct);
-            var duration = (int)(DateTime.UtcNow - requestStartDate).TotalMilliseconds;
+            var duration = (int)(_dateTimeService.UtcNow - requestStartDate).TotalMilliseconds;
 
             Durations[_scopeIdProvider.ScopeGuid][request.GetHashCode()] += duration;
             foreach (var key in Durations[_scopeIdProvider.ScopeGuid].Keys)

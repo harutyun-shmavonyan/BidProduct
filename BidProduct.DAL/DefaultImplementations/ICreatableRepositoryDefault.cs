@@ -8,7 +8,7 @@ namespace BidProduct.DAL.DefaultImplementations
     {
         TEntity ICreatableRepository<TEntity, TId>.Add(TEntity entity)
         {
-            var utcNow = DateTime.UtcNow;
+            var utcNow = DateTimeService.UtcNow;
 
             if (entity is IHasCreated hasCreated) hasCreated.Created = utcNow;
             if (entity is IHasModified hasModified) hasModified.Modified = utcNow;
@@ -19,7 +19,7 @@ namespace BidProduct.DAL.DefaultImplementations
 
         ICollection<TEntity> ICreatableRepository<TEntity, TId>.BulkAdd(ICollection<TEntity> entities)
         {
-            var utcNow = DateTime.UtcNow;
+            var utcNow = DateTimeService.UtcNow;
 
             foreach (var entity in entities)
             {

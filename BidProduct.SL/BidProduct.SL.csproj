@@ -9,7 +9,6 @@
   <ItemGroup>
     <Folder Include="CQRS\CommandHandlers\" />
     <Folder Include="CQRS\NotificationHandlers\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
   <ItemGroup>

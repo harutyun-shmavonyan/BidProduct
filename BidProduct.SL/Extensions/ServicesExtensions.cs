@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BidProduct.Common.Abstract;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +22,7 @@ using BidProduct.SL.Abstract.CQRS;
 using BidProduct.SL.Abstract.Validation;
 using BidProduct.SL.Models.CQRS.Queries;
 using BidProduct.SL.Models.CQRS.Responses;
+using BidProduct.SL.Services;
 
 namespace BidProduct.SL.Extensions
 {
@@ -35,6 +37,8 @@ namespace BidProduct.SL.Extensions
         public static void AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IScopeIdProvider>(_ => new ScopeIdProvider(Guid.NewGuid().ToString()));
+
+            services.AddTransient<IDateTimeService, StandardDateTimeService>();
 
             services.AddTransient<IInternalMediator, InternalMediator>();
             services.AddMediatR(typeof(InternalMediator));
@@ -66,6 +70,12 @@ namespace BidProduct.SL.Extensions
             services.AddScoped<IProductRepository, ProductRepository>();
         }
 
+        public static void AddDateTimeService<TDateTimeService>(this IServiceCollection services)
+            where TDateTimeService : class, IDateTimeService
+        {
+            services.AddTransient<IDateTimeService, TDateTimeService>();
+        }
+        
         public static void AddEfCore(this IServiceCollection services, string connectionString)
         {
             services.AddDbContext<BidProductDbContext>(options => options.UseSqlServer(connectionString));
