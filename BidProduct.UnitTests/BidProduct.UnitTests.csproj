@@ -28,4 +28,8 @@
     <ProjectReference Include="..\BidProduct.SL\BidProduct.SL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Handlers\" />
+  </ItemGroup>
+
 </Project>
