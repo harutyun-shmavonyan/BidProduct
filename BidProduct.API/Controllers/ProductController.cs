@@ -3,7 +3,9 @@ using BidProduct.Common.Abstract;
 using BidProduct.SL.Abstract;
 using BidProduct.SL.Models.CQRS.Commands;
 using BidProduct.SL.Models.CQRS.Queries;
+using BidProduct.SL.Models.CQRS.Responses;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
 
 namespace BidProduct.API.Controllers
 {
@@ -19,7 +21,6 @@ namespace BidProduct.API.Controllers
             _mediator = mediator;
             _mapper = mapper;
         }
-
 
         [HttpGet("{id:long}")]
         public async Task<ActionResult<ProductReadViewModel>> GetAsync(long id)
@@ -42,7 +43,7 @@ namespace BidProduct.API.Controllers
             var response = await _mediator.SendAsync(command);
             var model = _mapper.Map<ProductReadViewModel>(response);
 
-            return Ok(model);
+            return CreatedAtAction(nameof(GetAsync), new { model.Id });
         }
     }
 }
