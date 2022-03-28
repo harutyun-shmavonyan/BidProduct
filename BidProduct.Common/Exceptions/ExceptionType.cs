@@ -2,6 +2,7 @@
 {
     public enum ExceptionType
     {
+        Default,
         UnAuthorized,
         PermissionDenied,
         ValidationFailed,

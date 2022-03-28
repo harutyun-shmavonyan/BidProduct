@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using BidProduct.Common.Abstract;
 using BidProduct.DAL.Abstract;
 using BidProduct.SL.Abstract.CQRS;
 using BidProduct.SL.Models.CQRS.Queries;
@@ -17,7 +17,7 @@ namespace BidProduct.SL.CQRS.QueryHandlers
             _mapper = mapper;
         }
 
-        public async Task<GetProductQueryResponse> HandleAsync(GetProductQuery request, CancellationToken ct)
+        public async Task<GetProductQueryResponse> HandleAsync(GetProductQuery request, CancellationToken ct = default)
         {
             var product = await _repository.GetByIdAsync(request.Id);
 

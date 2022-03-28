@@ -1,6 +1,4 @@
-﻿using BidProduct.Common.Abstract;
-
-namespace BidProduct.DAL.Abstract.Repositories
+﻿namespace BidProduct.DAL.Abstract.Repositories
 {
     public interface IUpdateableRepository<TEntity, TId> where TEntity : IHasId<TId> where TId : struct
     {

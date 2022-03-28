@@ -4,17 +4,12 @@ using BidProduct.SL.Models.CQRS.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using BidProduct.API.ViewModels.Product;
 using BidProduct.SL.Models.CQRS.Commands;
 using BidProduct.Common.Abstract;
 using BidProduct.UnitTests.Services;
-using Moq;
 
 namespace BidProduct.UnitTests.ControllerTests
 {
@@ -56,12 +51,12 @@ namespace BidProduct.UnitTests.ControllerTests
             //Arrange
             ServiceCollection.AddSingleton<IDateTimeService, FixedDateTimeService>();
 
-            AddMockResponse<CreateProductCommand, CreateProductCommandResponse>(It.IsAny<CreateProductCommandResponse>());
+            AddMockResponse<CreateProductCommand, CreateProductCommandResponse>(new CreateProductCommandResponse());
 
             var controller = new ProductController(Mediator, Mapper);
 
             //Act
-            var response = await controller.CreateAsync(It.IsAny<ProductCreateViewModel>());
+            var response = await controller.CreateAsync(new ProductCreateViewModel());
             
             //Assert
             response.Should().NotBeNull();
