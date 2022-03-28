@@ -7,5 +7,6 @@ namespace BidProduct.SL.Models.CQRS.Responses
     {
         public long Id { get; set; }
         public string Name { get; set; }
+        public DateTimeOffset Created { get; set; }
     }
 }

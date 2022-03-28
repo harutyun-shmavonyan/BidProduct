@@ -10,7 +10,6 @@ namespace BidProduct.SL.Mapping
         public Mapper(AutoMapper.IMapper mapper)
         {
             _mapper = mapper;
-            //_mapper.ConfigurationProvider.AssertConfigurationIsValid();
         }
 
         public TDestination Map<TDestination>(object source) =>
