@@ -25,6 +25,8 @@
   <ItemGroup>
     <ProjectReference Include="..\BidPorduct.SL.Abstract\BidProduct.SL.Abstract.csproj" />
     <ProjectReference Include="..\BidProduct.API\BidProduct.API.csproj" />
+    <ProjectReference Include="..\BidProduct.DAL.Abstract\BidProduct.DAL.Abstract.csproj" />
+    <ProjectReference Include="..\BidProduct.DAL\BidProduct.DAL.csproj" />
     <ProjectReference Include="..\BidProduct.SL\BidProduct.SL.csproj" />
   </ItemGroup>
 
