@@ -38,4 +38,4 @@ steps:
     containerRegistry: 'Docker hub'
     repository: 'bidproduct'
     command: 'buildAndPush'
-    Dockerfile: '**/Dockerfile'
+    Dockerfile: 'Dockerfile'
