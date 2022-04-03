@@ -31,11 +31,11 @@ steps:
 - task: VSTest@2
   inputs:
     platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    
     
 - task: Docker@2
   inputs:
-    containerRegistry: 'Docker hub'
+    containerRegistry: 'MyPrivateDockerhub'
     repository: 'bidproduct'
     command: 'buildAndPush'
     Dockerfile: 'Dockerfile'
