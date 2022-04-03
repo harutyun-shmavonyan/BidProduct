@@ -6,7 +6,7 @@ namespace BidProduct.SL.Abstract.CQRS
         where TRequest : IInternalRequest<TResponse>
     {
         public Task<TResponse> HandleAsync(TRequest request, CancellationToken ct);
-        Task<TResponse> IRequestHandler<TRequest, TResponse>.Handle(TRequest request, CancellationToken cancellationToken) =>
+        Task<TResponse> IRequestHandler<TRequest, TResponse>.Handle(TRequest request, CancellationToken cancellationToken = default) =>
             HandleAsync(request, cancellationToken);
     }
 

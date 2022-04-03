@@ -1,7 +1,6 @@
 using BidProduct.API;
 using BidProduct.API.ExceptionHandlers;
 using BidProduct.API.Middlewares;
-using BidProduct.Common.Abstract;
 using BidProduct.DAL.CacheConverters;
 using BidProduct.DAL.Caches;
 using BidProduct.DAL.DB;

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using BidProduct.Common.Abstract;
 using BidProduct.DAL.Abstract;
 using BidProduct.DAL.Models;
 using BidProduct.SL.Abstract.CQRS;
@@ -20,7 +20,7 @@ public class CreateProductCommandHandler : IInternalRequestHandler<CreateProduct
         _mapper = mapper;
     }
 
-    public async Task<CreateProductCommandResponse> HandleAsync(CreateProductCommand command, CancellationToken ct)
+    public async Task<CreateProductCommandResponse> HandleAsync(CreateProductCommand command, CancellationToken ct = default)
     {
         var product = _mapper.Map<Product>(command);
 
