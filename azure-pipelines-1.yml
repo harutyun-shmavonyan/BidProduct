@@ -40,6 +40,6 @@ steps:
 - task: Docker@2
   inputs:
     containerRegistry: 'MyPrivateDockerhub'
-    repository: 'bidproduct'
+    repository: 'h317280/bidproduct'
     command: 'buildAndPush'
     Dockerfile: 'Dockerfile'
