@@ -31,11 +31,15 @@ steps:
 - task: VSTest@2
   inputs:
     platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
     
 - task: Docker@2
   inputs:
-    containerRegistry: 'Docker hub'
-    repository: 'bidproduct'
+    containerRegistry: 'MyPrivateDockerhub'
+    command: 'login'
+    
+- task: Docker@2
+  inputs:
+    containerRegistry: 'MyPrivateDockerhub'
+    repository: 'h317280/bidproduct'
     command: 'buildAndPush'
-    Dockerfile: '**/Dockerfile'
+    Dockerfile: 'Dockerfile'
