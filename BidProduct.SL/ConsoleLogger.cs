@@ -1,12 +1,21 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using BidProduct.Common.Abstract;
+using BidProduct.SL.Abstract;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace BidProduct.SL
 {
-    public class ConsoleLogger : Abstract.ILogger
+    public class ConsoleLogger : Logger
     {
-        public void Log(string text, LogLevel logLevel = LogLevel.Information)
+        public ConsoleLogger(IDateTimeService dateTimeService, IScopeIdProvider scopeIdProvider) : base(dateTimeService, scopeIdProvider)
         {
-            var color = logLevel switch
+        }
+
+        protected override void Log(InternalLogEvent internalLogEvent)
+        {
+            var text = JsonConvert.SerializeObject(internalLogEvent);
+
+            var color = internalLogEvent.LogLevel switch
             {
                 LogLevel.Error => ConsoleColor.Red,
                 LogLevel.Warning => ConsoleColor.DarkYellow,
@@ -16,16 +25,8 @@ namespace BidProduct.SL
             Console.ForegroundColor = color;
             Console.WriteLine(text);
             Console.ForegroundColor = ConsoleColor.White;
-        }
 
-        public void Log(string topic, string text, LogLevel level = LogLevel.Information)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Log(ICollection<string> topics, string text, LogLevel level = LogLevel.Information)
-        {
-            throw new NotImplementedException();
+            Console.WriteLine(text);
         }
     }
 }

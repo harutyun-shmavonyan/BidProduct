@@ -4,12 +4,14 @@ using BidProduct.API.Middlewares;
 using BidProduct.DAL.CacheConverters;
 using BidProduct.DAL.Caches;
 using BidProduct.DAL.DB;
+using BidProduct.SL;
 using BidProduct.SL.Extensions;
 using BidProduct.SL.Models.CQRS.Commands;
 using BidProduct.SL.Models.CQRS.Queries;
 using BidProduct.SL.Models.CQRS.Responses;
 using BidProduct.SL.Validators;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,11 +29,12 @@ services.AddTransient<ExceptionHandlerBase, LastExceptionHandler>();
 services.AddAdditionalMapperProfile(new ViewModelsMappingProfile());
 
 services.AddApplicationServices(builder.Configuration);
+services.AddElasticSearchLogging(builder.Configuration, builder.Environment);
 services.AddRepositories();
 services.AddCache();
 services.AddEfCore(builder.Configuration.GetConnectionString("BidProductConnectionString"));
 services.AddValidators();
-services.AddMessageLogging();
+services.AddMessageLogging<ElasticSearchLogger>();
 
 services.ForRequest<GetProductQuery, GetProductQueryResponse>()
     .AddValidation()
@@ -49,6 +52,8 @@ services.ForRequest<CreateProductCommand, CreateProductCommandResponse>()
 
 services.AddControllers();
 services.AddMvc();
+
+builder.Host.UseSerilog();
 
 var app = builder.Build();
 

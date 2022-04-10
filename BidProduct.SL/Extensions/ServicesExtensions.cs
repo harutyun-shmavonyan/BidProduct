@@ -23,6 +23,10 @@ using BidProduct.SL.Abstract.Validation;
 using BidProduct.SL.Models.CQRS.Queries;
 using BidProduct.SL.Models.CQRS.Responses;
 using BidProduct.SL.Services;
+using Serilog;
+using Microsoft.Extensions.Hosting;
+using Serilog.Sinks.Elasticsearch;
+using System.Reflection;
 
 namespace BidProduct.SL.Extensions
 {
@@ -54,6 +58,26 @@ namespace BidProduct.SL.Extensions
                 configuration.GetSection("InternalMessageLoggingConfiguration"));
         }
 
+        public static void AddElasticSearchLogging(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
+        {
+            Log.Logger = new LoggerConfiguration()
+                 .Enrich.FromLogContext()
+                 .WriteTo.Console()
+                 .WriteTo.Elasticsearch(ConfigureElasticSink(configuration, environment.EnvironmentName))
+                 .Enrich.WithProperty("Environment", environment)
+                 .ReadFrom.Configuration(configuration) 
+                 .CreateLogger();
+
+            static ElasticsearchSinkOptions ConfigureElasticSink(IConfiguration configuration, string environment)
+            {
+                return new ElasticsearchSinkOptions(new Uri(configuration["ElasticConfiguration:Uri"]))
+                {
+                    AutoRegisterTemplate = true,
+                    IndexFormat = $"BidProduct_{environment}"
+                };
+            }
+        }
+
         public static void AddCache(this IServiceCollection services)
         {
             AddCacheConverters(services);
@@ -75,7 +99,7 @@ namespace BidProduct.SL.Extensions
         {
             services.AddTransient<IDateTimeService, TDateTimeService>();
         }
-        
+
         public static void AddEfCore(this IServiceCollection services, string connectionString)
         {
             services.AddDbContext<BidProductDbContext>(options => options.UseSqlServer(connectionString));
@@ -86,9 +110,9 @@ namespace BidProduct.SL.Extensions
             services.Decorate(typeof(IRequestHandler<,>), typeof(InternalRequestHandlerValidatorProxy<,>));
         }
 
-        public static void AddMessageLogging(this IServiceCollection services)
+        public static void AddMessageLogging<TLogger>(this IServiceCollection services) where TLogger : class, Abstract.ILogger
         {
-            services.AddTransient<ILogger, ConsoleLogger>();
+            services.AddTransient<Abstract.ILogger, TLogger>();
             services.Decorate(typeof(IRequestHandler<,>), typeof(InternalMessageLoggerProxy<,>));
         }
 
@@ -123,7 +147,7 @@ namespace BidProduct.SL.Extensions
             return new ValidationLayerBuilder<TRequest>(Services);
         }
 
-        public CacheKeyBuilder<TInternalRequest, TResponse> AddCaching<TInternalRequest, TResponse>() 
+        public CacheKeyBuilder<TInternalRequest, TResponse> AddCaching<TInternalRequest, TResponse>()
             where TResponse : class where TInternalRequest : IInternalRequest<TResponse>
         {
             return new CacheKeyBuilder<TInternalRequest, TResponse>(Services);

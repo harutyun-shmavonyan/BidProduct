@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using BidProduct.SL.Extensions;
+using BidProduct.Common.LogEvents;
 
 namespace BidProduct.SL.Proxies
 {
@@ -14,7 +15,7 @@ namespace BidProduct.SL.Proxies
     {
         protected static readonly ConcurrentDictionary<string, int> NestingLevels = new();
 
-        protected static readonly ConcurrentDictionary<string, ConcurrentDictionary<int, int>> Durations = new();
+        protected static readonly ConcurrentDictionary<string, ConcurrentDictionary<int, TimeSpan>> Durations = new();
     }
 
     public class InternalMessageLoggerProxy<TRequest, TResponse> : InternalMessageLoggerProxy, IInternalRequestHandler<TRequest, TResponse>
@@ -50,41 +51,26 @@ namespace BidProduct.SL.Proxies
 
             if (!Durations.ContainsKey(_scopeIdProvider.ScopeGuid))
             {
-                Durations.TryAdd(_scopeIdProvider.ScopeGuid, new ConcurrentDictionary<int, int>());
+                Durations.TryAdd(_scopeIdProvider.ScopeGuid, new ConcurrentDictionary<int, TimeSpan>());
             }
-            Durations[_scopeIdProvider.ScopeGuid].TryAdd(request.GetHashCode(), 0);
+            Durations[_scopeIdProvider.ScopeGuid].TryAdd(request.GetHashCode(), TimeSpan.Zero);
 
-            var tabsBuilder = new StringBuilder();
-
-            for (var i = 0; i < NestingLevels[_scopeIdProvider.ScopeGuid]; ++i)
+            var requestLogEvent = new RequestLogEvent<TRequest, TResponse>
             {
-                tabsBuilder.Append("        ");
-            }
-
-            var prefix = tabsBuilder.ToString();
-
-            _logger.Log($"{prefix}Request type: {typeof(TRequest).GetFullName()}");
-            if (_configuration.ScopeIdNeeded) _logger.Log($"{prefix}Scope Id: {_scopeIdProvider.ScopeGuid}");
-            if (_configuration.RequestStartDateNeeded) _logger.Log($"{prefix}Request started: {_dateTimeService.UtcNow}");
-
-            var serializerSettings = new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Formatting = Formatting.Indented
+                Request = _configuration.RequestBodyLoggingNeeded ? request : default,
+                NestingLevel = NestingLevels[_scopeIdProvider.ScopeGuid],
+                Topics = { "InternalRequest" }
             };
 
-            if (_configuration.RequestBodyLoggingNeeded)
-            {
-                var requestBody = JsonConvert.SerializeObject(request, serializerSettings);
-                requestBody = requestBody.Replace(Environment.NewLine, Environment.NewLine + prefix);
-                _logger.Log($"{prefix}Request body: {requestBody}");
-            }
+            _logger.Log(requestLogEvent, Microsoft.Extensions.Logging.LogLevel.Information);
+
+            //TODO ScopeId
 
             var requestStartDate = _dateTimeService.UtcNow;
             var response = await _handler.Handle(request, ct);
-            var duration = (int)(_dateTimeService.UtcNow - requestStartDate).TotalMilliseconds;
+            var duration = (_dateTimeService.UtcNow - requestStartDate);
 
-            Durations[_scopeIdProvider.ScopeGuid][request.GetHashCode()] += duration;
+            Durations[_scopeIdProvider.ScopeGuid][request.GetHashCode()].Add(duration);
             foreach (var key in Durations[_scopeIdProvider.ScopeGuid].Keys)
             {
                 if (key != request.GetHashCode())
@@ -93,17 +79,9 @@ namespace BidProduct.SL.Proxies
                 }
             }
 
-            if (_configuration.ResponseBodyLoggingNeeded)
-            {
-                var responseBody = JsonConvert.SerializeObject(response, serializerSettings);
-                responseBody = responseBody.Replace(Environment.NewLine, Environment.NewLine + prefix);
-                _logger.Log($"{prefix}Response body: {responseBody}");
-            }
-
             var clearDuration = Durations[_scopeIdProvider.ScopeGuid][request.GetHashCode()];
             if (_configuration.ClearDurationNeeded)
             {
-                _logger.Log($"{prefix}Clear duration {clearDuration}ms");
                 Durations[_scopeIdProvider.ScopeGuid].TryRemove(request.GetHashCode(), out _);
                 if (!Durations[_scopeIdProvider.ScopeGuid].Any())
                 {
@@ -111,19 +89,28 @@ namespace BidProduct.SL.Proxies
                 }
             }
 
-            if (_configuration.DurationNeeded)
+            var responseLogEvent = new ResponseLogEvent<TResponse>
             {
-                _logger.Log($"{prefix}Duration {duration}ms");
-            }
+                NestingLevel = NestingLevels[_scopeIdProvider.ScopeGuid],
+                Topics = { "InternalResponse" },
+                Response = _configuration.ResponseBodyLoggingNeeded ? response : default,
+                ClearDuration = _configuration.ClearDurationNeeded ? clearDuration : default,
+                Duration = _configuration.DurationNeeded ? duration : default
+            };
+
+            _logger.Log(responseLogEvent, Microsoft.Extensions.Logging.LogLevel.Information);
 
             _configuration.MaxDurations.TryGetValue(request.GetType().Name, out var maxDuration);
             maxDuration = maxDuration > 0 ? maxDuration : _configuration.MaxDurations["Default"];
-            if (clearDuration > maxDuration)
+            if (clearDuration > TimeSpan.FromMilliseconds(maxDuration))
             {
-                _logger.Log($"{prefix}Performance issue. Limit is {maxDuration}ms",
-                    Microsoft.Extensions.Logging.LogLevel.Warning);
+                _logger.Log(new PerformanceIssueLogEvent<TRequest, TResponse>
+                {
+                    Request = request,
+                    Response = response,
+                    Topics = { "InternalRequestPerformanceIssue" },
+                }, Microsoft.Extensions.Logging.LogLevel.Warning);
             }
-            _logger.Log($"{prefix}------------------");
 
             --NestingLevels[_scopeIdProvider.ScopeGuid];
             if (NestingLevels[_scopeIdProvider.ScopeGuid] < 0)

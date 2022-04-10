@@ -1,8 +1,8 @@
 ﻿using System.Text;
 
-namespace BidProduct.SL.Extensions
+namespace BidProduct.Common
 {
-    public static class TypeExtensions
+    static class TypeExtensions
     {
         public static string GetFullName(this Type genericType)
         {
@@ -11,7 +11,7 @@ namespace BidProduct.SL.Extensions
             var sb = new StringBuilder();
 
             sb.Append(genericType.Name.Substring(0, genericType.Name.LastIndexOf("`", StringComparison.Ordinal)));
-            sb.Append(genericType.GetGenericArguments().Aggregate("<", (aggregate, type) => aggregate + (aggregate == "<" ? "" : ", ") + GetFullName(type)));
+            sb.Append(genericType.GetGenericArguments().Aggregate("<", (aggregate, type) => aggregate + (aggregate == "<" ? "" : ", ") + type.GetFullName()));
             sb.Append(">");
 
             return sb.ToString();
