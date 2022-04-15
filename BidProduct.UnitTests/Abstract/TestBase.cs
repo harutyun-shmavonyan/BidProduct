@@ -5,23 +5,20 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-namespace BidProduct.UnitTests;
+namespace BidProduct.UnitTests.Abstract;
 
 public abstract class TestBase
 {
-    protected IServiceCollection ServiceCollection;
-    protected IConfiguration Configuration;
+    protected IServiceCollection ServiceCollection = new ServiceCollection();
+    protected IConfiguration Configuration = new ConfigurationBuilder()
+                                            .AddEnvironmentVariables()
+                                            .Build();
 
     protected IServiceProvider ServiceProvider => ServiceCollection.BuildServiceProvider();
 
     [SetUp]
     public void Initialize()
     {
-        ServiceCollection = new ServiceCollection();
-        Configuration = new ConfigurationBuilder()
-            .AddEnvironmentVariables()
-            .Build();
-
         ServiceCollection.AddAdditionalMapperProfile(new ViewModelsMappingProfile());
         ServiceCollection.AddApplicationServices(Configuration);
     }

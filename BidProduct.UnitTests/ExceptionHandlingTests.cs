@@ -2,6 +2,7 @@
 using System.Net;
 using BidProduct.API.ExceptionHandlers;
 using BidProduct.Common.Exceptions;
+using BidProduct.UnitTests.Abstract;
 using NUnit.Framework;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -117,7 +118,7 @@ namespace BidProduct.UnitTests
             ServiceCollection.AddTransient<ExceptionHandlerBase, NotFoundExceptionHandler>();
             ServiceCollection.AddTransient<ExceptionHandlerBase, LastExceptionHandler>();
 
-            var firstExceptionHandler = ServiceProvider.GetService<FirstExceptionHandler>();
+            var firstExceptionHandler = ServiceProvider.GetRequiredService<FirstExceptionHandler>();
 
             //Act
             var result = firstExceptionHandler.Execute(new BidProductException(string.Empty, ExceptionType.Default));

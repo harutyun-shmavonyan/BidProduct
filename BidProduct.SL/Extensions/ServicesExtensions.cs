@@ -26,7 +26,7 @@ using BidProduct.SL.Services;
 using Serilog;
 using Microsoft.Extensions.Hosting;
 using Serilog.Sinks.Elasticsearch;
-using System.Reflection;
+using BidProduct.DAL.Caches;
 
 namespace BidProduct.SL.Extensions
 {
@@ -58,15 +58,22 @@ namespace BidProduct.SL.Extensions
                 configuration.GetSection("InternalMessageLoggingConfiguration"));
         }
 
-        public static void AddElasticSearchLogging(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
+        public static void AddUserIdProvider<TUserIdProvider>(this IServiceCollection service) where TUserIdProvider : class, IUserIdProvider
+        {
+            service.AddScoped<IUserIdProvider, TUserIdProvider>();
+        }
+
+        public static Serilog.ILogger AddElasticSearchLogging(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
         {
             Log.Logger = new LoggerConfiguration()
                  .Enrich.FromLogContext()
-                 .WriteTo.Console()
+                 //.WriteTo.Console()
                  .WriteTo.Elasticsearch(ConfigureElasticSink(configuration, environment.EnvironmentName))
                  .Enrich.WithProperty("Environment", environment)
                  .ReadFrom.Configuration(configuration) 
                  .CreateLogger();
+
+            return Log.Logger;
 
             static ElasticsearchSinkOptions ConfigureElasticSink(IConfiguration configuration, string environment)
             {
@@ -110,7 +117,7 @@ namespace BidProduct.SL.Extensions
             services.Decorate(typeof(IRequestHandler<,>), typeof(InternalRequestHandlerValidatorProxy<,>));
         }
 
-        public static void AddMessageLogging<TLogger>(this IServiceCollection services) where TLogger : class, Abstract.ILogger
+        public static void AddLogging<TLogger>(this IServiceCollection services) where TLogger : class, Abstract.ILogger
         {
             services.AddTransient<Abstract.ILogger, TLogger>();
             services.Decorate(typeof(IRequestHandler<,>), typeof(InternalMessageLoggerProxy<,>));
@@ -119,7 +126,7 @@ namespace BidProduct.SL.Extensions
         private static void AddCacheDecorators(IServiceCollection services)
         {
             services.Decorate<IRequestHandler<GetProductQuery, GetProductQueryResponse>,
-                InternalRequestHandlerReadThroughCacheProxy<GetProductQuery, GetProductQueryResponse, long, GetProductQueryResponse>>();
+                InternalRequestHandlerReadThroughCacheProxy<GetProductQuery, GetProductQueryResponse, string, object>>();
         }
 
         private static void AddCacheConverters(IServiceCollection services)
@@ -225,7 +232,15 @@ namespace BidProduct.SL.Extensions
             _services = services;
         }
 
-        public CacheBuilder<TRequest, TResponse, TKey, TValue> Build<TCache>(CacheLifetime lifetime) where TCache : class, IKeyValueCache<TRequest, TResponse, TKey, TValue>
+        public CacheDecoratorBuilder<TRequest, TResponse, TKey, TValue> WithExpiration(TimeSpan expiration)
+        {
+            _services.AddSingleton<IExpirationPolicy<TRequest, TResponse>>(
+                new ExpirationPolicy<TRequest, TResponse>(expiration));
+
+            return this;
+        }
+
+        public void Build<TCache>(CacheLifetime lifetime) where TCache : class, IKeyValueCache<TRequest, TResponse, TKey, TValue>
         {
             switch (lifetime)
             {
@@ -241,8 +256,6 @@ namespace BidProduct.SL.Extensions
                 default:
                     throw new ArgumentOutOfRangeException(nameof(lifetime), lifetime, null);
             }
-
-            return new CacheBuilder<TRequest, TResponse, TKey, TValue>(_services);
         }
     }
 
@@ -251,16 +264,6 @@ namespace BidProduct.SL.Extensions
         Singleton,
         Scoped,
         Transient
-    }
-
-    public class CacheBuilder<TRequest, TResponse, TKey, TValue>
-    {
-        private readonly IServiceCollection _services;
-
-        public CacheBuilder(IServiceCollection services)
-        {
-            _services = services;
-        }
     }
 
     public class ValidationLayerBuilder<TRequest> : RequestPipelineBuilder<TRequest>

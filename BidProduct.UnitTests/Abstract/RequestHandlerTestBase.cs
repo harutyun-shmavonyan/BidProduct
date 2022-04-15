@@ -4,7 +4,7 @@ using BidProduct.DAL.Abstract;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
-namespace BidProduct.UnitTests;
+namespace BidProduct.UnitTests.Abstract;
 
 public abstract class RequestHandlerTestBase : TestBase
 {

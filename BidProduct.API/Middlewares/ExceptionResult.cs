@@ -9,5 +9,6 @@ namespace BidProduct.API.Middlewares
         [JsonIgnore] public string ContentType { get; } = Middlewares.ContentType.Json;
         public string? Message { get; set; }
         public string? Reason { get; set; }
+        public string? ScopeId { get; set; }
     }
 }

@@ -6,8 +6,8 @@ using BidProduct.SL.Models.CQRS.Responses;
 namespace BidProduct.DAL.CacheConverters
 {
     public class ProductCacheConverter : 
-        ICacheKeyConverter<GetProductQuery, long>, 
-        ICacheValueConverter<GetProductQueryResponse, GetProductQueryResponse>
+        ICacheKeyConverter<GetProductQuery, string>, 
+        ICacheValueConverter<GetProductQueryResponse, object>
     {
         private readonly IMapper _mapper;
 
@@ -16,10 +16,9 @@ namespace BidProduct.DAL.CacheConverters
             _mapper = mapper;
         }
 
-        public long ToKey(GetProductQuery input) => input.Id;
+        public string ToKey(GetProductQuery input) => input.Id.ToString();
 
-        public GetProductQueryResponse ConvertToInternalValue(GetProductQueryResponse value) => _mapper.Map<GetProductQueryResponse>(value);
-
-        public GetProductQueryResponse ConvertToExternalValue(GetProductQueryResponse value) => _mapper.Map<GetProductQueryResponse>(value);
+        public object ConvertToInternalValue(GetProductQueryResponse value) => _mapper.Map<GetProductQueryResponse>(value);
+        public GetProductQueryResponse ConvertToExternalValue(object value) => _mapper.Map<GetProductQueryResponse>(value);
     }
 }

@@ -3,6 +3,6 @@
     public interface ICacheValueConverter<TExternalValue, TValue>
     {
         public TValue ConvertToInternalValue(TExternalValue value);
-        public TExternalValue ConvertToExternalValue(TValue value);
+        public TExternalValue? ConvertToExternalValue(TValue value);
     }
 }

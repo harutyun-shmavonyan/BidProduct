@@ -22,6 +22,7 @@
 		<PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
 		<PackageReference Include="serilog.sinks.elasticsearch" Version="8.4.1" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+		<PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

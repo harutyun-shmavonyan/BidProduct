@@ -1,11 +1,12 @@
-﻿using BidProduct.Common.Abstract;
+﻿using System.Threading.Tasks;
+using BidProduct.Common.Abstract;
 using BidProduct.SL.Abstract;
 using BidProduct.SL.Abstract.CQRS;
+using BidProduct.UnitTests.Abstract;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using System.Threading.Tasks;
 
-namespace BidProduct.UnitTests.ControllerTests
+namespace BidProduct.UnitTests.Controllers
 {
     public abstract class ControllerTest : TestBase
     {

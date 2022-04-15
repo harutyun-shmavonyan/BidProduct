@@ -1,6 +1,6 @@
 ﻿namespace BidProduct.API.ViewModels.Product;
 
-public class ProductCreateViewModel
+public record ProductCreateViewModel
 {
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 }

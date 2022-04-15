@@ -9,5 +9,7 @@
         Task CacheAsync(TInput input, TExternalValue externalValue);
         Task InvalidateAsync(TInput input);
         Task InvalidateWithDelayedSupportAsync(TInput input);
+
+        TKey ToKey(TInput input) => KeyConverter.ToKey(input);
     }
 }

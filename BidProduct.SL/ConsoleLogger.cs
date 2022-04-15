@@ -7,7 +7,10 @@ namespace BidProduct.SL
 {
     public class ConsoleLogger : Logger
     {
-        public ConsoleLogger(IDateTimeService dateTimeService, IScopeIdProvider scopeIdProvider) : base(dateTimeService, scopeIdProvider)
+        public ConsoleLogger(
+            IDateTimeService dateTimeService, 
+            IScopeIdProvider scopeIdProvider, 
+            IUserIdProvider userIdProvider) : base(dateTimeService, scopeIdProvider, userIdProvider)
         {
         }
 

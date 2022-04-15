@@ -1,6 +1,7 @@
 using BidProduct.API;
 using BidProduct.API.ExceptionHandlers;
 using BidProduct.API.Middlewares;
+using BidProduct.API.User;
 using BidProduct.DAL.CacheConverters;
 using BidProduct.DAL.Caches;
 using BidProduct.DAL.DB;
@@ -19,6 +20,8 @@ var services = builder.Services;
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
+services.AddHttpContextAccessor();
+
 services.AddTransient<FirstExceptionHandler>();
 services.AddTransient<ExceptionHandlerBase, DbUpdateExceptionHandler>();
 services.AddTransient<ExceptionHandlerBase, ValidationFailedExceptionHandler>();
@@ -29,22 +32,24 @@ services.AddTransient<ExceptionHandlerBase, LastExceptionHandler>();
 services.AddAdditionalMapperProfile(new ViewModelsMappingProfile());
 
 services.AddApplicationServices(builder.Configuration);
-services.AddElasticSearchLogging(builder.Configuration, builder.Environment);
+services.AddUserIdProvider<UserIdProvider>();
+var logger = services.AddElasticSearchLogging(builder.Configuration, builder.Environment);
 services.AddRepositories();
 services.AddCache();
 services.AddEfCore(builder.Configuration.GetConnectionString("BidProductConnectionString"));
 services.AddValidators();
-services.AddMessageLogging<ElasticSearchLogger>();
+services.AddLogging<ElasticSearchLogger>();
 
 services.ForRequest<GetProductQuery, GetProductQueryResponse>()
     .AddValidation()
     .AddValidator<GetProductQueryValidator>()
     .AddCaching<GetProductQuery, GetProductQueryResponse>()
-    .WithKey<long>()
+    .WithKey<string>()
     .WithConverter<ProductCacheConverter>()
-    .WithValue<GetProductQueryResponse>()
+    .WithValue<object>()
     .WithConverter<ProductCacheConverter>()
-    .Build<InMemoryCache<GetProductQuery, GetProductQueryResponse, long, GetProductQueryResponse>>(CacheLifetime.Singleton);
+    .WithExpiration(TimeSpan.FromHours(1))
+    .Build<InMemoryExpirableCache<GetProductQuery, GetProductQueryResponse>>(CacheLifetime.Singleton);
 
 services.ForRequest<CreateProductCommand, CreateProductCommandResponse>()
     .AddValidation()
@@ -53,7 +58,7 @@ services.ForRequest<CreateProductCommand, CreateProductCommandResponse>()
 services.AddControllers();
 services.AddMvc();
 
-builder.Host.UseSerilog();
+builder.Host.UseSerilog(logger);
 
 var app = builder.Build();
 

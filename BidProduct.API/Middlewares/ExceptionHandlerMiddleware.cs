@@ -1,22 +1,23 @@
 ﻿using System.Text;
 using BidProduct.API.ExceptionHandlers;
 using BidProduct.Common.Exceptions;
+using BidProduct.SL.Abstract;
 using Newtonsoft.Json;
 
 namespace BidProduct.API.Middlewares
 {
     public class ExceptionHandlerMiddleware
     {
-        private readonly ExceptionHandlerBase _handler;
+        private readonly ExceptionHandlerBase _exceptionHandler;
         private readonly RequestDelegate _next;
 
         public ExceptionHandlerMiddleware(RequestDelegate next, FirstExceptionHandler handler)
         {
             _next = next;
-            _handler = handler;
+            _exceptionHandler = handler;
         }
 
-        public async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, IScopeIdProvider scopeIdProvider)
         {
             try
             {
@@ -29,7 +30,9 @@ namespace BidProduct.API.Middlewares
                     throw;
                 }
 
-                var result = _handler.Execute(e);
+                var result = _exceptionHandler.Execute(e);
+                result.ScopeId = scopeIdProvider.ScopeGuid;
+
                 context.Response.ContentType = ContentType.Json;
                 context.Response.StatusCode = (int)result.StatusCode;
                 await context.Response.WriteAsync(JsonConvert.SerializeObject(result));

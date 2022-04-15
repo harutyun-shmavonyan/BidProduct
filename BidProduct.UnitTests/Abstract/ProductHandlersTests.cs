@@ -9,7 +9,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 
-namespace BidProduct.UnitTests;
+namespace BidProduct.UnitTests.Abstract;
 
 [TestFixture]
 public class ProductHandlersTests : RequestHandlerTestBase

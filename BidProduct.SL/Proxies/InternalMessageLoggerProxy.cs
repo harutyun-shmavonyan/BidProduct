@@ -1,13 +1,12 @@
 ﻿using System.Collections.Concurrent;
-using System.Text;
 using BidProduct.Common.Abstract;
 using BidProduct.SL.Abstract;
 using BidProduct.SL.Abstract.CQRS;
+using BidProduct.SL.LogEvents;
 using MediatR;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using BidProduct.SL.Extensions;
-using BidProduct.Common.LogEvents;
+using Microsoft.Extensions.Logging;
+using ILogger = BidProduct.SL.Abstract.ILogger;
 
 namespace BidProduct.SL.Proxies
 {
@@ -58,19 +57,33 @@ namespace BidProduct.SL.Proxies
             var requestLogEvent = new RequestLogEvent<TRequest, TResponse>
             {
                 Request = _configuration.RequestBodyLoggingNeeded ? request : default,
-                NestingLevel = NestingLevels[_scopeIdProvider.ScopeGuid],
-                Topics = { "InternalRequest" }
+                NestingLevel = NestingLevels[_scopeIdProvider.ScopeGuid]
             };
 
-            _logger.Log(requestLogEvent, Microsoft.Extensions.Logging.LogLevel.Information);
+            _logger.Log(requestLogEvent, LogLevel.Information);
 
             //TODO ScopeId
 
             var requestStartDate = _dateTimeService.UtcNow;
-            var response = await _handler.Handle(request, ct);
+
+            TResponse response;
+            try
+            {
+                response = await _handler.Handle(request, ct);
+            }
+            catch (Exception exception)
+            {
+                _logger.Log(new RequestFailedLogEvent<TRequest, TResponse>(request, exception)
+                {
+                    NestingLevel = NestingLevels[_scopeIdProvider.ScopeGuid]
+                }, LogLevel.Error);
+
+                throw;
+            }
+
             var duration = (_dateTimeService.UtcNow - requestStartDate);
 
-            Durations[_scopeIdProvider.ScopeGuid][request.GetHashCode()].Add(duration);
+            Durations[_scopeIdProvider.ScopeGuid][request.GetHashCode()] = Durations[_scopeIdProvider.ScopeGuid][request.GetHashCode()].Add(duration);
             foreach (var key in Durations[_scopeIdProvider.ScopeGuid].Keys)
             {
                 if (key != request.GetHashCode())
@@ -92,24 +105,18 @@ namespace BidProduct.SL.Proxies
             var responseLogEvent = new ResponseLogEvent<TResponse>
             {
                 NestingLevel = NestingLevels[_scopeIdProvider.ScopeGuid],
-                Topics = { "InternalResponse" },
                 Response = _configuration.ResponseBodyLoggingNeeded ? response : default,
                 ClearDuration = _configuration.ClearDurationNeeded ? clearDuration : default,
                 Duration = _configuration.DurationNeeded ? duration : default
             };
 
-            _logger.Log(responseLogEvent, Microsoft.Extensions.Logging.LogLevel.Information);
+            _logger.Log(responseLogEvent, LogLevel.Information);
 
             _configuration.MaxDurations.TryGetValue(request.GetType().Name, out var maxDuration);
             maxDuration = maxDuration > 0 ? maxDuration : _configuration.MaxDurations["Default"];
             if (clearDuration > TimeSpan.FromMilliseconds(maxDuration))
             {
-                _logger.Log(new PerformanceIssueLogEvent<TRequest, TResponse>
-                {
-                    Request = request,
-                    Response = response,
-                    Topics = { "InternalRequestPerformanceIssue" },
-                }, Microsoft.Extensions.Logging.LogLevel.Warning);
+                _logger.Log(new PerformanceIssueLogEvent<TRequest, TResponse>(request, response), LogLevel.Warning);
             }
 
             --NestingLevels[_scopeIdProvider.ScopeGuid];

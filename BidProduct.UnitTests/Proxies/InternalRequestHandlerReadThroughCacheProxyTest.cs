@@ -2,15 +2,13 @@
 using BidProduct.SL.Models.CQRS.Queries;
 using BidProduct.SL.Models.CQRS.Responses;
 using BidProduct.SL.Proxies.Cache;
-using FluentAssertions;
 using MediatR;
 using Moq;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using BidProduct.DAL.Caches;
+using BidProduct.UnitTests.Abstract;
 
 namespace BidProduct.UnitTests.Proxies
 {
@@ -26,7 +24,9 @@ namespace BidProduct.UnitTests.Proxies
             var response = new GetProductQueryResponse();
             cacheMock.Setup(c => c.GetAsync(It.IsAny<GetProductQuery>())).ReturnsAsync(response);
 
-            var cacheProxy = new InternalRequestHandlerReadThroughCacheProxy<GetProductQuery, GetProductQueryResponse, long, GetProductQueryResponse>(handlerMock.Object, cacheMock.Object);
+            var cacheProxy = new InternalRequestHandlerReadThroughCacheProxy<GetProductQuery, GetProductQueryResponse, long, GetProductQueryResponse>(
+                handlerMock.Object, cacheMock.Object, new ExpirationPolicy<GetProductQuery, GetProductQueryResponse>(TimeSpan.MaxValue), new TestLogger());
+
             var result = await cacheProxy.HandleAsync(new GetProductQuery(), default);
 
             Assert.AreSame(result, response);
@@ -43,7 +43,9 @@ namespace BidProduct.UnitTests.Proxies
             cacheMock.Setup(c => c.GetAsync(It.IsAny<GetProductQuery>())).ReturnsAsync((GetProductQueryResponse)null!);
             handlerMock.Setup(h => h.Handle(It.IsAny<GetProductQuery>(), default)).ReturnsAsync(response);
 
-            var cacheProxy = new InternalRequestHandlerReadThroughCacheProxy<GetProductQuery, GetProductQueryResponse, long, GetProductQueryResponse>(handlerMock.Object, cacheMock.Object);
+            var cacheProxy = new InternalRequestHandlerReadThroughCacheProxy<GetProductQuery, GetProductQueryResponse, long, GetProductQueryResponse>
+                (handlerMock.Object, cacheMock.Object, new ExpirationPolicy<GetProductQuery, GetProductQueryResponse>(TimeSpan.MaxValue), new TestLogger());
+            
             var result = await cacheProxy.HandleAsync(new GetProductQuery(), default);
 
             Assert.AreSame(result, response);

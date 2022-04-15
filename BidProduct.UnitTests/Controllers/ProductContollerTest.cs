@@ -1,17 +1,17 @@
-﻿using BidProduct.API.Controllers;
+﻿using System.Threading.Tasks;
+using BidProduct.API.Controllers;
+using BidProduct.API.ViewModels.Product;
+using BidProduct.Common.Abstract;
+using BidProduct.SL.Models.CQRS.Commands;
 using BidProduct.SL.Models.CQRS.Queries;
 using BidProduct.SL.Models.CQRS.Responses;
+using BidProduct.UnitTests.Services;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using System.Threading.Tasks;
-using FluentAssertions;
-using BidProduct.API.ViewModels.Product;
-using BidProduct.SL.Models.CQRS.Commands;
-using BidProduct.Common.Abstract;
-using BidProduct.UnitTests.Services;
 
-namespace BidProduct.UnitTests.ControllerTests
+namespace BidProduct.UnitTests.Controllers
 {
     [TestFixture]
     public class ProductContollerTest : ControllerTest

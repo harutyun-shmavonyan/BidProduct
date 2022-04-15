@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace BidProduct.Common
+namespace BidProduct.SL.Extensions
 {
     static class TypeExtensions
     {

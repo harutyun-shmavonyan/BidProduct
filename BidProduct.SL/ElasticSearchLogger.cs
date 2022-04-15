@@ -6,7 +6,10 @@ namespace BidProduct.SL
 {
     public class ElasticSearchLogger : Logger
     {
-        public ElasticSearchLogger(IDateTimeService dateTimeService, IScopeIdProvider scopeIdProvider) : base(dateTimeService, scopeIdProvider)
+        public ElasticSearchLogger(
+            IDateTimeService dateTimeService,
+            IScopeIdProvider scopeIdProvider,
+            IUserIdProvider userIdProvider) : base(dateTimeService, scopeIdProvider, userIdProvider)
         {
         }
 

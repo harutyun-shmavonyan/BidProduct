@@ -8,21 +8,23 @@ namespace BidProduct.SL.Abstract
     {
         private readonly IDateTimeService _dateTimeService;
         private readonly IScopeIdProvider _scopeIdProvider;
+        private readonly IUserIdProvider _userIdProvider;
 
-        public Logger(IDateTimeService dateTimeService, IScopeIdProvider scopeIdProvider)
+        public Logger(IDateTimeService dateTimeService, IScopeIdProvider scopeIdProvider, IUserIdProvider userIdProvider)
         {
             _dateTimeService = dateTimeService;
             _scopeIdProvider = scopeIdProvider;
+            _userIdProvider = userIdProvider;
         }
 
         public void Log(LogEvent logEvent, LogLevel level)
         {
-            var internalLogEvent = new InternalLogEvent
+            var internalLogEvent = new InternalLogEvent(logEvent)
             {
                 ScopeId = _scopeIdProvider.ScopeGuid,
+                UserId = _userIdProvider.UserId,
                 EventDate = _dateTimeService.UtcNow,
-                LogLevel = level,
-                LogEvent = logEvent
+                LogLevel = level
             };
 
             Log(internalLogEvent);
