@@ -6,9 +6,9 @@ namespace BidProduct.API.User
     {
         public UserIdProvider(IHttpContextAccessor httpContextAccessor)
         {
-            UserId = Convert.ToInt32(httpContextAccessor.HttpContext?.User.FindFirst(c => c.Type == "UserId")?.Value);
+            UserId = httpContextAccessor.HttpContext?.User.FindFirst(c => c.Type == "userId")?.Value;
         }
 
-        public int UserId { get; }
+        public string? UserId { get; }
     }
 }

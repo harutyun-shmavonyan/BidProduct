@@ -17,6 +17,6 @@ namespace BidProduct.API.ExceptionHandlers
         }
 
         public override ExceptionResult Execute(BidProductException exception) =>
-            Next.Execute(exception);
+            Next!.Execute(exception);
     }
 }

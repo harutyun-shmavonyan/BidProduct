@@ -19,6 +19,6 @@ public class ValidationFailedExceptionHandler : ExceptionHandlerBase
             return result;
         }
 
-        return Next.Execute(exception);
+        return Next!.Execute(exception);
     }
 }
