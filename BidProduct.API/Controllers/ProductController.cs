@@ -3,12 +3,14 @@ using BidProduct.Common.Abstract;
 using BidProduct.SL.Abstract;
 using BidProduct.SL.Models.CQRS.Commands;
 using BidProduct.SL.Models.CQRS.Queries;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BidProduct.API.Controllers
 {
     [ApiController]
     [Route("[controller]s")]
+    [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly IInternalMediator _mediator;

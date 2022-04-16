@@ -112,7 +112,7 @@ namespace BidProduct.SL.Proxies
 
             _logger.Log(responseLogEvent, LogLevel.Information);
 
-            _configuration.MaxDurations.TryGetValue(request.GetType().Name, out var maxDuration);
+            _configuration.MaxDurations!.TryGetValue(request.GetType().Name, out var maxDuration);
             maxDuration = maxDuration > 0 ? maxDuration : _configuration.MaxDurations["Default"];
             if (clearDuration > TimeSpan.FromMilliseconds(maxDuration))
             {

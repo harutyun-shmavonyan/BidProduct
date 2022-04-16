@@ -19,7 +19,7 @@ namespace BidProduct.API.ExceptionHandlers
                 return result;
             }
 
-            return Next.Execute(exception);
+            return Next!.Execute(exception);
         }
     }
 }

@@ -5,7 +5,7 @@ namespace BidProduct.API.ExceptionHandlers
 {
     public abstract class ExceptionHandlerBase
     {
-        protected ExceptionHandlerBase Next;
+        protected ExceptionHandlerBase? Next;
 
         public virtual ExceptionResult Execute(BidProductException exception)
         {

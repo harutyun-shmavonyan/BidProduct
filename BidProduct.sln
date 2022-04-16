@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BidProduct.API", "BidProduc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BidProduct.UnitTests", "BidProduct.UnitTests\BidProduct.UnitTests.csproj", "{80201CD7-6064-4B7E-9A9F-00E9FB4B4ACC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BidProduct.IdentityManagement", "BidProduct.IdentityManagement\BidProduct.IdentityManagement.csproj", "{50A3974A-7713-4FC7-9D8F-D3E0A71A7620}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{80201CD7-6064-4B7E-9A9F-00E9FB4B4ACC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80201CD7-6064-4B7E-9A9F-00E9FB4B4ACC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80201CD7-6064-4B7E-9A9F-00E9FB4B4ACC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50A3974A-7713-4FC7-9D8F-D3E0A71A7620}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50A3974A-7713-4FC7-9D8F-D3E0A71A7620}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50A3974A-7713-4FC7-9D8F-D3E0A71A7620}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50A3974A-7713-4FC7-9D8F-D3E0A71A7620}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

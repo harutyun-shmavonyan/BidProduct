@@ -1,4 +1,5 @@
 using BidProduct.API;
+using BidProduct.API.Controllers;
 using BidProduct.API.ExceptionHandlers;
 using BidProduct.API.Middlewares;
 using BidProduct.API.User;
@@ -11,6 +12,7 @@ using BidProduct.SL.Models.CQRS.Commands;
 using BidProduct.SL.Models.CQRS.Queries;
 using BidProduct.SL.Models.CQRS.Responses;
 using BidProduct.SL.Validators;
+using IdentityServer4.AccessTokenValidation;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -19,6 +21,20 @@ var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
+
+services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+    .AddIdentityServerAuthentication(options =>
+    {
+        options.RequireHttpsMetadata = true;
+
+        options.TokenRetriever = request => 
+        request.Cookies["access_token"];
+        options.Authority = builder.Configuration["IdentityServer:BaseUrl"];
+        options.SupportedTokens = SupportedTokens.Reference;
+
+        options.ApiName = builder.Configuration["IdentityServer:ApiName"];
+        options.ApiSecret = builder.Configuration["IdentityServer:ApiSecret"];
+    });
 
 services.AddHttpContextAccessor();
 
@@ -58,6 +74,12 @@ services.ForRequest<CreateProductCommand, CreateProductCommandResponse>()
 services.AddControllers();
 services.AddMvc();
 
+services.AddHttpClient<BFFController>(options =>
+{
+    options.BaseAddress = new Uri(builder.Configuration["IdentityServer:BaseUrl"]);
+    options.Timeout = TimeSpan.FromSeconds(5);
+});
+
 builder.Host.UseSerilog(logger);
 
 var app = builder.Build();
@@ -69,6 +91,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 using (var scope = builder.Services.BuildServiceProvider().CreateScope())
 {
