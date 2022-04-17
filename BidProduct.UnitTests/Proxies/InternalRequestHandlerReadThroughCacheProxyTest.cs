@@ -27,7 +27,7 @@ namespace BidProduct.UnitTests.Proxies
             var cacheProxy = new InternalRequestHandlerReadThroughCacheProxy<GetProductQuery, GetProductQueryResponse, long, GetProductQueryResponse>(
                 handlerMock.Object, cacheMock.Object, new ExpirationPolicy<GetProductQuery, GetProductQueryResponse>(TimeSpan.MaxValue), new TestLogger());
 
-            var result = await cacheProxy.HandleAsync(new GetProductQuery(), default);
+            var result = await cacheProxy.HandleAsync(new GetProductQuery(0), default);
 
             Assert.AreSame(result, response);
             handlerMock.Verify(h => h.Handle(It.IsAny<GetProductQuery>(), default), Times.Never);
@@ -46,7 +46,7 @@ namespace BidProduct.UnitTests.Proxies
             var cacheProxy = new InternalRequestHandlerReadThroughCacheProxy<GetProductQuery, GetProductQueryResponse, long, GetProductQueryResponse>
                 (handlerMock.Object, cacheMock.Object, new ExpirationPolicy<GetProductQuery, GetProductQueryResponse>(TimeSpan.MaxValue), new TestLogger());
             
-            var result = await cacheProxy.HandleAsync(new GetProductQuery(), default);
+            var result = await cacheProxy.HandleAsync(new GetProductQuery(0), default);
 
             Assert.AreSame(result, response);
             handlerMock.Verify(h => h.Handle(It.IsAny<GetProductQuery>(), default), Times.Once);

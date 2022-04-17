@@ -34,7 +34,7 @@ public class ProductHandlersTests : RequestHandlerTestBase
         var handler = new GetProductQueryHandler(productRepositoryMock.Object, Mapper);
 
         //Act
-        var response = await handler.HandleAsync(new GetProductQuery {Id = id});
+        var response = await handler.HandleAsync(new GetProductQuery(id: id));
 
         //Arrange
         response.Id.Should().Be(id);
@@ -60,7 +60,7 @@ public class ProductHandlersTests : RequestHandlerTestBase
         var handler = new CreateProductCommandHandler(UnitOfWorkMock.Object, productRepositoryMock.Object, Mapper);
 
         //Act
-        var response = await handler.HandleAsync(new CreateProductCommand { Name = name });
+        var response = await handler.HandleAsync(new CreateProductCommand(name));
 
         //Arrange
         response.Id.Should().Be(id);

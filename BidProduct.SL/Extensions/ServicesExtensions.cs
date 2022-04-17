@@ -15,6 +15,8 @@ using BidProduct.SL.Proxies.Cache;
 using BidProduct.SL.Utils;
 using Mapper = BidProduct.SL.Mapping.Mapper;
 using BidProduct.DAL.Abstract.Cache;
+using BidProduct.DAL.Abstract.Repositories;
+using BidProduct.DAL.BasicRepositories;
 using BidProduct.DAL.CacheConverters;
 using BidProduct.DAL.Repositories;
 using BidProduct.SL.Abstract;
@@ -27,6 +29,8 @@ using Serilog;
 using Microsoft.Extensions.Hosting;
 using Serilog.Sinks.Elasticsearch;
 using BidProduct.DAL.Caches;
+using BidProduct.DAL.Models;
+using BidProduct.SL.CQRS.QueryHandlers;
 
 namespace BidProduct.SL.Extensions
 {
@@ -67,7 +71,7 @@ namespace BidProduct.SL.Extensions
         {
             Log.Logger = new LoggerConfiguration()
                  .Enrich.FromLogContext()
-                 //.WriteTo.Console()
+                 .WriteTo.Console()
                  .WriteTo.Elasticsearch(ConfigureElasticSink(configuration, environment.EnvironmentName))
                  .Enrich.WithProperty("Environment", environment)
                  .ReadFrom.Configuration(configuration) 
@@ -98,7 +102,16 @@ namespace BidProduct.SL.Extensions
             services.AddScoped<IIncludeFilterExecutor, IncludeFilterExecutor>();
             services.AddScoped<IProjectionFilterExecutor, ProjectionFilterExecutor>();
 
+            services.AddScoped(typeof(IQueryableRepository<,>), typeof(QueryableRepository<,>));
+            services.AddScoped(typeof(ICreatableRepository<,>), typeof(CreatableRepository<,>));
+            services.AddScoped(typeof(IUpdateableRepository<,>), typeof(UpdateableRepository<,>));
+            services.AddScoped(typeof(IUpsertableRepository<,>), typeof(UpsertableRepository<,>));
+            services.AddScoped(typeof(IRemovableRepository<,>), typeof(RemovableRepository<,>));
+
             services.AddScoped<IProductRepository, ProductRepository>();
+
+            services.AddScoped<IRequestHandler<GetByFilterQuery<Product, long, GetProductQueryResponse>, ICollection<GetProductQueryResponse>>,
+                    GetByFilterQueryHandler<Product, long, GetProductQueryResponse>>();
         }
 
         public static void AddDateTimeService<TDateTimeService>(this IServiceCollection services)

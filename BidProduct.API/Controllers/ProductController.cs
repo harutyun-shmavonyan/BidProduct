@@ -1,8 +1,12 @@
 ﻿using BidProduct.API.ViewModels.Product;
 using BidProduct.Common.Abstract;
+using BidProduct.DAL.Abstract.Filtering;
+using BidProduct.DAL.Models;
+using BidProduct.DAL.Models.Filters;
 using BidProduct.SL.Abstract;
 using BidProduct.SL.Models.CQRS.Commands;
 using BidProduct.SL.Models.CQRS.Queries;
+using BidProduct.SL.Models.CQRS.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,10 +29,12 @@ namespace BidProduct.API.Controllers
         [HttpGet("{id:long}")]
         public async Task<ActionResult<ProductReadViewModel>> GetAsync(long id)
         {
-            var request = new GetProductQuery
+            await _mediator.SendAsync(new GetByFilterQuery<Product, long, GetProductQueryResponse>(new ProductFilter
             {
-                Id = id
-            };
+                OrderedProperties = {new OrderedProperty<Product>(OrderingForm.Ascending, p => p.Name)}
+            }));
+
+            var request = new GetProductQuery(id: id);
 
             var response = await _mediator.SendAsync(request);
             var model = _mapper.Map<ProductReadViewModel>(response);

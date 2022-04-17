@@ -6,5 +6,10 @@ namespace BidProduct.SL.Models.CQRS.Queries
     public record GetProductQuery : IInternalRequest<GetProductQueryResponse>
     {
         public long Id { get; set; }
+
+        public GetProductQuery(long id)
+        {
+            Id = id;
+        }
     }
 }

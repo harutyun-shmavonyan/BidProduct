@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using AutoMapper;
 using BidProduct.Common;
 using BidProduct.DAL.Models;
