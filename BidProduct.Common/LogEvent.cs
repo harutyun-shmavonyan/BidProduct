@@ -2,7 +2,7 @@
 
 public abstract record LogEvent
 {
-    public abstract List<string> Topics { get; set; }
+    public abstract List<string> Tags { get; set; }
 
-    protected void EnrichWithTopics(params string[] topics) => Topics.AddRange(topics);
+    protected void EnrichWithTopics(params string[] topics) => Tags.AddRange(topics);
 }

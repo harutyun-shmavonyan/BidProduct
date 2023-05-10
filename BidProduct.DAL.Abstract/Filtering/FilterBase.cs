@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using BidProduct.DAL.Abstract.FilterExecutors;
 
 namespace BidProduct.DAL.Abstract.Filtering

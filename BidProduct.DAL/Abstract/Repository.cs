@@ -1,8 +1,8 @@
-﻿using BidProduct.Common.Abstract;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using BidProduct.DAL.Abstract.FilterExecutors;
 using BidProduct.DAL.DB;
 using BidProduct.DAL.DefaultImplementations;
+using BidProduct.Common.Abstract;
 
 namespace BidProduct.DAL.Abstract
 {

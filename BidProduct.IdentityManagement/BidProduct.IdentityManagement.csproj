@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>be84c24e-0d8e-4b36-b9a6-3ab94b251842</UserSecretsId>
+    <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,6 +12,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="3.1.5" />
 
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.24" />
+
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
 
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.5" />

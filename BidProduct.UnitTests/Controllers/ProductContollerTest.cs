@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using BidProduct.API.Controllers;
 using BidProduct.API.ViewModels.Product;
-using BidProduct.Common.Abstract;
 using BidProduct.SL.Models.CQRS.Commands;
 using BidProduct.SL.Models.CQRS.Queries;
 using BidProduct.SL.Models.CQRS.Responses;

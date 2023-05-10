@@ -10,6 +10,6 @@ namespace BidProduct.SL.LogEvents
         public TRequest? Request { get; set; }
         public int NestingLevel { get; set; }
 
-        public override List<string> Topics { get; set; } = new() { "InternalRequest" };
+        public override List<string> Tags{ get; set; } = new() { "InternalRequest" };
     }
 }

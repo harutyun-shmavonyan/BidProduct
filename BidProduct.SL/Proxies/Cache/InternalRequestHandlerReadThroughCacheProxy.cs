@@ -2,9 +2,9 @@
 using BidProduct.DAL.Abstract.Cache;
 using BidProduct.SL.Abstract.CQRS;
 using BidProduct.SL.Extensions;
-using BidProduct.SL.LogEvents;
 using Microsoft.Extensions.Logging;
 using ILogger = BidProduct.SL.Abstract.ILogger;
+using BidProduct.SL.LogEvents;
 
 namespace BidProduct.SL.Proxies.Cache
 {

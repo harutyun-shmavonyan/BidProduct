@@ -9,8 +9,8 @@ namespace BidProduct.SL
     {
         public ConsoleLogger(
             IDateTimeService dateTimeService, 
-            IScopeIdProvider scopeIdProvider, 
-            IUserIdProvider userIdProvider) : base(dateTimeService, scopeIdProvider, userIdProvider)
+            ITraceIdProvider TraceIdProvider, 
+            IUserIdProvider userIdProvider) : base(dateTimeService, TraceIdProvider, userIdProvider)
         {
         }
 

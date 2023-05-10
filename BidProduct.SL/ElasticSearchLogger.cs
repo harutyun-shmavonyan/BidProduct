@@ -8,8 +8,8 @@ namespace BidProduct.SL
     {
         public ElasticSearchLogger(
             IDateTimeService dateTimeService,
-            IScopeIdProvider scopeIdProvider,
-            IUserIdProvider userIdProvider) : base(dateTimeService, scopeIdProvider, userIdProvider)
+            ITraceIdProvider TraceIdProvider,
+            IUserIdProvider userIdProvider) : base(dateTimeService, TraceIdProvider, userIdProvider)
         {
         }
 

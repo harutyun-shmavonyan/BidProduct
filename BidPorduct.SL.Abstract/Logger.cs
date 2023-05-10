@@ -7,13 +7,13 @@ namespace BidProduct.SL.Abstract
     public abstract class Logger : ILogger
     {
         private readonly IDateTimeService _dateTimeService;
-        private readonly IScopeIdProvider _scopeIdProvider;
+        private readonly ITraceIdProvider _TraceIdProvider;
         private readonly IUserIdProvider _userIdProvider;
 
-        public Logger(IDateTimeService dateTimeService, IScopeIdProvider scopeIdProvider, IUserIdProvider userIdProvider)
+        public Logger(IDateTimeService dateTimeService, ITraceIdProvider TraceIdProvider, IUserIdProvider userIdProvider)
         {
             _dateTimeService = dateTimeService;
-            _scopeIdProvider = scopeIdProvider;
+            _TraceIdProvider = TraceIdProvider;
             _userIdProvider = userIdProvider;
         }
 
@@ -21,7 +21,7 @@ namespace BidProduct.SL.Abstract
         {
             var internalLogEvent = new InternalLogEvent(logEvent)
             {
-                ScopeId = _scopeIdProvider.ScopeGuid,
+                TraceId = _TraceIdProvider.ScopeGuid,
                 UserId = _userIdProvider.UserId,
                 EventDate = _dateTimeService.UtcNow,
                 LogLevel = level

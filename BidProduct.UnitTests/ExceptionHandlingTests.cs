@@ -2,11 +2,11 @@
 using System.Net;
 using BidProduct.API.ExceptionHandlers;
 using BidProduct.Common.Exceptions;
-using BidProduct.UnitTests.Abstract;
 using NUnit.Framework;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using BidProduct.UnitTests.Abstract;
 
 namespace BidProduct.UnitTests
 {

@@ -1,5 +1,5 @@
-using System;
 using BidProduct.SL.Abstract;
+using System;
 
 namespace BidProduct.IntegrationTests;
 

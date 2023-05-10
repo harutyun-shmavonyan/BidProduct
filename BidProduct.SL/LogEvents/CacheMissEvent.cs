@@ -10,7 +10,7 @@ public record CacheMissEvent<TRequest, TResponse, TKey> : LogEvent
     public string CacheSource { get; set; }
     public TKey CacheKey { get; set; }
 
-    public override List<string> Topics { get; set; } = new() {"CacheMiss"};
+    public override List<string> Tags { get; set; } = new() {"CacheMiss"};
 
     public CacheMissEvent(string cacheSource, TKey cacheKey)
     {

@@ -1,6 +1,6 @@
 ﻿namespace BidProduct.SL.Abstract
 {
-    public interface IScopeIdProvider
+    public interface ITraceIdProvider
     {
         public string ScopeGuid { get; }
     }

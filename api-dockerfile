@@ -14,9 +14,9 @@ COPY ["BidProduct.API/BidProduct.API.csproj", "BidProduct.API/"]
 COPY ["BidProduct.SL/BidProduct.SL.csproj", "BidProduct.SL/"]
 COPY ["BidProduct.SL.Models/BidProduct.SL.Models.csproj", "BidProduct.SL.Models/"]
 COPY ["BidPorduct.SL.Abstract/BidProduct.SL.Abstract.csproj", "BidPorduct.SL.Abstract/"]
+COPY ["BidProduct.Common/BidProduct.Common.csproj", "BidProduct.Common/"]
 COPY ["BidProduct.DAL.Models/BidProduct.DAL.Models.csproj", "BidProduct.DAL.Models/"]
 COPY ["BidProduct.DAL.Abstract/BidProduct.DAL.Abstract.csproj", "BidProduct.DAL.Abstract/"]
-COPY ["BidProduct.Common/BidProduct.Common.csproj", "BidProduct.Common/"]
 COPY ["BidProduct.DAL/BidProduct.DAL.csproj", "BidProduct.DAL/"]
 RUN dotnet restore "BidProduct.API/BidProduct.API.csproj"
 COPY . .

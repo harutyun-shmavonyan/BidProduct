@@ -11,7 +11,7 @@ public record RequestFailedLogEvent<TRequest, TResponse> : LogEvent where TReque
     public int NestingLevel { get; set; }
     public Exception Exception { get; set; }
 
-    public override List<string> Topics { get; set; } = new() { "InternalRequestFailed" };
+    public override List<string> Tags{ get; set; } = new() { "InternalRequestFailed" };
 
     public RequestFailedLogEvent(TRequest request, Exception exception)
     {

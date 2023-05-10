@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
 using BidProduct.DAL.Abstract.FilterExecutors;
+using Microsoft.EntityFrameworkCore;
 
 namespace BidProduct.DAL.FilterExecutors
 {

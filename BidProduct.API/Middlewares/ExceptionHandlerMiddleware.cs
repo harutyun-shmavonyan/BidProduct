@@ -17,7 +17,7 @@ namespace BidProduct.API.Middlewares
             _exceptionHandler = handler;
         }
 
-        public async Task InvokeAsync(HttpContext context, IScopeIdProvider scopeIdProvider)
+        public async Task InvokeAsync(HttpContext context, ITraceIdProvider TraceIdProvider)
         {
             try
             {
@@ -31,7 +31,7 @@ namespace BidProduct.API.Middlewares
                 }
 
                 var result = _exceptionHandler.Execute(e);
-                result.ScopeId = scopeIdProvider.ScopeGuid;
+                result.TraceId = TraceIdProvider.ScopeGuid;
 
                 context.Response.ContentType = ContentType.Json;
                 context.Response.StatusCode = (int)result.StatusCode;

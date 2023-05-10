@@ -1,3 +1,4 @@
+using System;
 using BidProduct.API;
 using BidProduct.API.Controllers;
 using BidProduct.API.ExceptionHandlers;
@@ -13,7 +14,11 @@ using BidProduct.SL.Models.CQRS.Queries;
 using BidProduct.SL.Models.CQRS.Responses;
 using BidProduct.SL.Validators;
 using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);

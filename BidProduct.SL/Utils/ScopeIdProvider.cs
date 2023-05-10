@@ -2,11 +2,11 @@
 
 namespace BidProduct.SL.Utils
 {
-    public class ScopeIdProvider : IScopeIdProvider
+    public class TraceIdProvider : ITraceIdProvider
     {
         public string ScopeGuid { get; }
 
-        public ScopeIdProvider(string scopeGuid)
+        public TraceIdProvider(string scopeGuid)
         {
             ScopeGuid = scopeGuid;
         }

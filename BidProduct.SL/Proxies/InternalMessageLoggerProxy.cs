@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using BidProduct.Common.Abstract;
 using BidProduct.SL.Abstract;
 using BidProduct.SL.Abstract.CQRS;
 using BidProduct.SL.LogEvents;
@@ -7,6 +6,7 @@ using MediatR;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using ILogger = BidProduct.SL.Abstract.ILogger;
+using BidProduct.Common.Abstract;
 
 namespace BidProduct.SL.Proxies
 {
@@ -23,46 +23,46 @@ namespace BidProduct.SL.Proxies
         private readonly IRequestHandler<TRequest, TResponse> _handler;
         private readonly ILogger _logger;
         private readonly InternalMessageLoggingConfiguration _configuration;
-        private readonly IScopeIdProvider _scopeIdProvider;
+        private readonly ITraceIdProvider _TraceIdProvider;
         private readonly IDateTimeService _dateTimeService;
 
         public InternalMessageLoggerProxy(
             IRequestHandler<TRequest, TResponse> handler,
             ILogger logger,
             IOptions<InternalMessageLoggingConfiguration> options,
-            IScopeIdProvider scopeIdProvider,
+            ITraceIdProvider TraceIdProvider,
             IDateTimeService dateTimeService)
         {
             _handler = handler;
             _logger = logger;
             _configuration = options.Value;
-            _scopeIdProvider = scopeIdProvider;
+            _TraceIdProvider = TraceIdProvider;
             _dateTimeService = dateTimeService;
         }
 
         public async Task<TResponse> HandleAsync(TRequest request, CancellationToken ct)
         {
-            if (!NestingLevels.ContainsKey(_scopeIdProvider.ScopeGuid))
+            if (!NestingLevels.ContainsKey(_TraceIdProvider.ScopeGuid))
             {
-                NestingLevels.TryAdd(_scopeIdProvider.ScopeGuid, -1);
+                NestingLevels.TryAdd(_TraceIdProvider.ScopeGuid, -1);
             }
-            ++NestingLevels[_scopeIdProvider.ScopeGuid];
+            ++NestingLevels[_TraceIdProvider.ScopeGuid];
 
-            if (!Durations.ContainsKey(_scopeIdProvider.ScopeGuid))
+            if (!Durations.ContainsKey(_TraceIdProvider.ScopeGuid))
             {
-                Durations.TryAdd(_scopeIdProvider.ScopeGuid, new ConcurrentDictionary<int, TimeSpan>());
+                Durations.TryAdd(_TraceIdProvider.ScopeGuid, new ConcurrentDictionary<int, TimeSpan>());
             }
-            Durations[_scopeIdProvider.ScopeGuid].TryAdd(request.GetHashCode(), TimeSpan.Zero);
+            Durations[_TraceIdProvider.ScopeGuid].TryAdd(request.GetHashCode(), TimeSpan.Zero);
 
             var requestLogEvent = new RequestLogEvent<TRequest, TResponse>
             {
                 Request = _configuration.RequestBodyLoggingNeeded ? request : default,
-                NestingLevel = NestingLevels[_scopeIdProvider.ScopeGuid]
+                NestingLevel = NestingLevels[_TraceIdProvider.ScopeGuid]
             };
 
             _logger.Log(requestLogEvent, LogLevel.Information);
 
-            //TODO ScopeId
+            //TODO TraceId
 
             var requestStartDate = _dateTimeService.UtcNow;
 
@@ -75,7 +75,7 @@ namespace BidProduct.SL.Proxies
             {
                 _logger.Log(new RequestFailedLogEvent<TRequest, TResponse>(request, exception)
                 {
-                    NestingLevel = NestingLevels[_scopeIdProvider.ScopeGuid]
+                    NestingLevel = NestingLevels[_TraceIdProvider.ScopeGuid]
                 }, LogLevel.Error);
 
                 throw;
@@ -83,28 +83,28 @@ namespace BidProduct.SL.Proxies
 
             var duration = (_dateTimeService.UtcNow - requestStartDate);
 
-            Durations[_scopeIdProvider.ScopeGuid][request.GetHashCode()] = Durations[_scopeIdProvider.ScopeGuid][request.GetHashCode()].Add(duration);
-            foreach (var key in Durations[_scopeIdProvider.ScopeGuid].Keys)
+            Durations[_TraceIdProvider.ScopeGuid][request.GetHashCode()] = Durations[_TraceIdProvider.ScopeGuid][request.GetHashCode()].Add(duration);
+            foreach (var key in Durations[_TraceIdProvider.ScopeGuid].Keys)
             {
                 if (key != request.GetHashCode())
                 {
-                    Durations[_scopeIdProvider.ScopeGuid][key] -= Durations[_scopeIdProvider.ScopeGuid][request.GetHashCode()];
+                    Durations[_TraceIdProvider.ScopeGuid][key] -= Durations[_TraceIdProvider.ScopeGuid][request.GetHashCode()];
                 }
             }
 
-            var clearDuration = Durations[_scopeIdProvider.ScopeGuid][request.GetHashCode()];
+            var clearDuration = Durations[_TraceIdProvider.ScopeGuid][request.GetHashCode()];
             if (_configuration.ClearDurationNeeded)
             {
-                Durations[_scopeIdProvider.ScopeGuid].TryRemove(request.GetHashCode(), out _);
-                if (!Durations[_scopeIdProvider.ScopeGuid].Any())
+                Durations[_TraceIdProvider.ScopeGuid].TryRemove(request.GetHashCode(), out _);
+                if (!Durations[_TraceIdProvider.ScopeGuid].Any())
                 {
-                    Durations.TryRemove(_scopeIdProvider.ScopeGuid, out _);
+                    Durations.TryRemove(_TraceIdProvider.ScopeGuid, out _);
                 }
             }
 
             var responseLogEvent = new ResponseLogEvent<TResponse>
             {
-                NestingLevel = NestingLevels[_scopeIdProvider.ScopeGuid],
+                NestingLevel = NestingLevels[_TraceIdProvider.ScopeGuid],
                 Response = _configuration.ResponseBodyLoggingNeeded ? response : default,
                 ClearDuration = _configuration.ClearDurationNeeded ? clearDuration : default,
                 Duration = _configuration.DurationNeeded ? duration : default
@@ -119,10 +119,10 @@ namespace BidProduct.SL.Proxies
                 _logger.Log(new PerformanceIssueLogEvent<TRequest, TResponse>(request, response), LogLevel.Warning);
             }
 
-            --NestingLevels[_scopeIdProvider.ScopeGuid];
-            if (NestingLevels[_scopeIdProvider.ScopeGuid] < 0)
+            --NestingLevels[_TraceIdProvider.ScopeGuid];
+            if (NestingLevels[_TraceIdProvider.ScopeGuid] < 0)
             {
-                NestingLevels.TryRemove(_scopeIdProvider.ScopeGuid, out _);
+                NestingLevels.TryRemove(_TraceIdProvider.ScopeGuid, out _);
             }
 
             return response;

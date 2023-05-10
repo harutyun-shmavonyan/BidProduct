@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: LoadBalancer
+metadata:
+  name: bid-product-service
+spec:
+  type: LoadBalancer
+  externalName: someapi.somecompany.com
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    tier: backend

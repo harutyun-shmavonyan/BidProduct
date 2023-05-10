@@ -6,7 +6,7 @@ namespace BidProduct.SL.LogEvents
     {
         public TRequest Request { get; set; }
         public TResponse Response { get; set; }
-        public override List<string> Topics { get; set; } = new() { "InternalRequestPerformanceIssue" };
+        public override List<string> Tags{ get; set; } = new() { "InternalRequestPerformanceIssue" };
 
         public PerformanceIssueLogEvent(TRequest request, TResponse response)
         {

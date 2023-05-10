@@ -1,5 +1,6 @@
-﻿using AutoMapper;
-using BidProduct.Common.Abstract;
+﻿using System;
+using System.Collections.Generic;
+using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,9 +17,7 @@ using BidProduct.SL.Utils;
 using Mapper = BidProduct.SL.Mapping.Mapper;
 using BidProduct.DAL.Abstract.Cache;
 using BidProduct.DAL.Abstract.Repositories;
-using BidProduct.DAL.BasicRepositories;
 using BidProduct.DAL.CacheConverters;
-using BidProduct.DAL.Repositories;
 using BidProduct.SL.Abstract;
 using BidProduct.SL.Abstract.CQRS;
 using BidProduct.SL.Abstract.Validation;
@@ -28,9 +27,12 @@ using BidProduct.SL.Services;
 using Serilog;
 using Microsoft.Extensions.Hosting;
 using Serilog.Sinks.Elasticsearch;
-using BidProduct.DAL.Caches;
+using BidProduct.Common.Abstract;
+using BidProduct.DAL.Repositories;
+using BidProduct.DAL.BasicRepositories;
 using BidProduct.DAL.Models;
 using BidProduct.SL.CQRS.QueryHandlers;
+using BidProduct.DAL.Caches;
 
 namespace BidProduct.SL.Extensions
 {
@@ -44,7 +46,7 @@ namespace BidProduct.SL.Extensions
 
         public static void AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<IScopeIdProvider>(_ => new ScopeIdProvider(Guid.NewGuid().ToString()));
+            services.AddScoped<ITraceIdProvider>(_ => new TraceIdProvider(Guid.NewGuid().ToString()));
 
             services.AddTransient<IDateTimeService, StandardDateTimeService>();
 

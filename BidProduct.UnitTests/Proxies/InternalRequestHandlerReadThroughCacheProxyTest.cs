@@ -1,14 +1,14 @@
 ﻿using BidProduct.DAL.Abstract.Cache;
+using BidProduct.DAL.Caches;
 using BidProduct.SL.Models.CQRS.Queries;
 using BidProduct.SL.Models.CQRS.Responses;
 using BidProduct.SL.Proxies.Cache;
+using BidProduct.UnitTests.Abstract;
 using MediatR;
 using Moq;
 using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
-using BidProduct.DAL.Caches;
-using BidProduct.UnitTests.Abstract;
 
 namespace BidProduct.UnitTests.Proxies
 {

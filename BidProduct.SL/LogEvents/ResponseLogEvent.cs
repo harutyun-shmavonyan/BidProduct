@@ -10,6 +10,6 @@ namespace BidProduct.SL.LogEvents
         public TimeSpan? ClearDuration { get; set; }
         public TimeSpan? Duration { get; set; }
         public int NestingLevel { get; set; }
-        public override List<string> Topics { get; set; } = new() { "InternalResponse" };
+        public override List<string> Tags{ get; set; } = new() { "InternalResponse" };
     }
 }
