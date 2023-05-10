@@ -27,6 +27,7 @@ namespace BidProduct.API.Controllers
         }
 
         [HttpGet("{id:long}")]
+        [ActionName(nameof(GetAsync))]
         public async Task<ActionResult<ProductReadViewModel>> GetAsync(long id)
         {
             await _mediator.SendAsync(new GetByFilterQuery<Product, long, GetProductQueryResponse>(new ProductFilter
